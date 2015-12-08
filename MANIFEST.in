@@ -1,0 +1,10 @@
+include *.md
+include *.txt
+include AUTHORS
+include LICENSE
+
+# Include the config files
+recursive-include config *
+
+# Include template files
+recursive-include nova/core *

@@ -1,0 +1,10 @@
+_nova_complete()
+{
+    local cur prev BASE_LEVEL
+
+    COMPREPLY=()
+
+    return 0
+
+} &&
+complete -F _nova_complete nova

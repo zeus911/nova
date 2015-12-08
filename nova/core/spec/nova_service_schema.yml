@@ -1,0 +1,88 @@
+service_name:
+  type: string
+  required: true
+team_name:
+  type: string
+  required: true
+port:
+  type: integer
+  required: true
+healthcheck_url:
+  type: string
+  required: true
+
+logs:
+  type: list
+  schema:
+    type: dict
+    schema:
+      file:
+        type: string
+        required: true
+      group_name:
+        type: string
+        required: true
+      datetime_format:
+        type: string
+        required: true
+
+environments:
+  type: list
+  required: true
+  schema:
+    type: dict
+    required: true
+    schema:
+      name:
+        type: string
+        required: true
+      aws_profile:
+        type: string
+        required: true
+      aws_region:
+        type: string
+        required: true
+      resources:
+        type: string
+      deploy_arn:
+        type: string
+        required: true
+      deployment_bucket:
+        type: string
+        required: true
+      deployment_application_id:
+        type: string
+
+      stacks:
+        type: list
+        required: true
+        schema:
+          type: dict
+          required: true
+          allow_unknown: true
+          schema:
+            stack_name:
+              type: string
+              required: true
+            stack_type:
+              type: string
+              required: true
+            stack_custom_template:
+              type: string
+            stack_template:
+              type: string
+            stack_template_version:
+              type: string
+            stack_deploy_config:
+              type: string
+              required: true
+            deployment_group:
+              type: string
+            deployment_options:
+              type: list
+            deployment_volumes:
+              type: list
+            deployment_variables:
+              type: list
+            deployment_arguments:
+              type: list
