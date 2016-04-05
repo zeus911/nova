@@ -16,12 +16,12 @@ To start using, you need to write your `nova.yml` file.
 
 Your `nova.yml` file describes the infrastructure needed to run your service. The descriptor file is split into __environments__ and __stacks__. An environment is a group of stacks to be deployed to an AWS account, most services will only have one environment (the only services to have two are those that stand up a sandbox environment in backoffice). An environment has multiple stacks, these are for example production, live-canary and dark-canary/staging stacks.
 
-Once you've written your `nova.yml` file, all you need to do is run `nova stack create <stack name>`. Once Cloudformation has finished creating all your environments' resources, you can run `nova deploy <environment name> <stack name>`. If you already have an existing service running in production, you can now move traffic to your new instances and remove the old infrastructure.
+Once you've written your `nova.yml` file, all you need to do is run `nova stack create <environment name>`. Once Cloudformation has finished creating all your environments' resources, you can run `nova deploy <environment name> <stack name>`. If you already have an existing service running in production, you can now move traffic to your new instances and remove the old infrastructure.
 
 Usage Steps:
 
 1. Write `nova.yml` service descriptor.
-2. `nova stack create <stack name>`
+2. `nova stack create <environment name>`
 3. `nova deploy <environment name> <stack name>`
 
 
