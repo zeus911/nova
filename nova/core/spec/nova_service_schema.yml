@@ -1,27 +1,36 @@
+# The name of the service, free-text [a-zA-Z0-9\-\_] (e.g. api-my-test-service)
 service_name:
   type: string
   required: true
+# The name of the team owning the service, used as a EC2 Tag (e.g. nova)
 team_name:
   type: string
   required: true
+# The service port used for ELB listener & healthcheck (e.g. 9000)
 port:
   type: integer
   required: true
+# The relative URL used by the ELB for healthchecks (e.g. /internal/healthcheck)
+# Must respond to a HEAD & GET request with a 200 to be considered healthy during deployment & ELB healthchecks
 healthcheck_url:
   type: string
   required: true
 
+# Cloudwatch logs configuration
 logs:
   type: list
   schema:
     type: dict
     schema:
+      # The location of the file to be pushed to Cloudwatch logs (e.g. /var/log/messages)
       file:
         type: string
         required: true
+      # The Cloudwatch logs group name to use (e.g. api-my-test-service-syslog)
       group_name:
         type: string
         required: true
+      # The format of the datetime portion of the log file (e.g. '%Y-%m-%d %H:%M:%S')
       datetime_format:
         type: string
         required: true
@@ -33,23 +42,35 @@ environments:
     type: dict
     required: true
     schema:
+      # The name of the environment, free-text [a-zA-Z0-9\-\_] (e.g. us-east-1)
+      # as the main reason for multiple environments is per AWS account and/or region, it's good to use
+      # one of those in the name for each environment.
       name:
         type: string
         required: true
+      # The AWS profile credentials & configuration to use (e.g. default)
       aws_profile:
         type: string
         required: true
+      # The AWS region to use (e.g. us-east-1)
       aws_region:
         type: string
         required: true
+      # The filename of optional extra supplimentary Cloudformation resources to be included at the
+      # level of the parent Cloudformation template (i.e. a sibling to the nested stacks).
+      # The file must be a JSON file of the format '{ "MyExtraAWSResource": { "Type": "AWS::..." ...}, ... }'
       resources:
         type: string
+      # The AWS ARN of the CodeDeploy role used for creating & triggering deployments
       deploy_arn:
         type: string
         required: true
+      # The name of the bucket to use for CodeDeploy revision tar.gz files
       deployment_bucket:
         type: string
         required: true
+      # The AWS ARN of the CodeDeploy application. This is created during 'nova stack create <environment name>'
+      # and needs to be manually filled in once Cloudformation has finised creating it. Until then comment it out.
       deployment_application_id:
         type: string
 
@@ -61,28 +82,51 @@ environments:
           required: true
           allow_unknown: true
           schema:
+            # The name of the stack, free-text [a-zA-Z0-9\-\_] (e.g. production). Each stack is essentially an
+            # application environment (production, staging, sandbox, live-canary, dark-canary, etc.), it's good to use
+            # that as the name for each stack.
             stack_name:
               type: string
               required: true
+            # The type of stack, free-text [a-zA-Z0-9\-\_] (e.g. production), MUST BE UNIQUE!
+            # The stack type is used to differentiate the stacks from one another, as stack name can be anything
+            # you want, this is used for the type of application environment
+            # (production, staging, sandbox, live-canary, dark-canary, etc.) and used in the deployment scripts
+            # to determine which deployment variables to use when starting the docker container.
             stack_type:
               type: string
               required: true
+            # The filename of a complete Cloudformation template to use, in the case where this service is completely
+            # unique. Instead of using the 'stack_template' & 'stack_template_version' below, you must provide this.
             stack_custom_template:
               type: string
+            # The filename of a standard template managed externally to this service. In conjunction with
+            # 'stack_template_version' below, the file taken from '~/.nova/<stack_template_version>/<stack_template>'
+            # nova then uploads this to the 'nested-templates-<aws account id>' bucket or uses an existing one if
+            # the checksums match.
             stack_template:
               type: string
+            # See above, used for versioning standard templates managed externally to this service.
             stack_template_version:
               type: string
+            # The logical name of the CodeDeploy deployment configuration (created manually).
             stack_deploy_config:
               type: string
               required: true
+            # The AWS ARN of the CodeDeploy deployment group. This is created during
+            # 'nova stack create <environment name>' and needs to be manually filled in once Cloudformation
+            # has finised creating it. Until then comment it out.
             deployment_group:
               type: string
+            # Passed to the 'docker run' command as docker run options.
             deployment_options:
               type: list
+            # Passed to the 'docker run' command as docker volume mounts.
             deployment_volumes:
               type: list
+            # Passed to the 'docker run' command as docker environment variables.
             deployment_variables:
               type: list
+            # Passed to the 'docker run' command as container arguments.
             deployment_arguments:
               type: list

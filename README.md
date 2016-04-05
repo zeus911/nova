@@ -1,20 +1,32 @@
 NOVA
 ================
 
-**Collection of utilities to easily deploy services to AWS.**
-
+The NOVA cli application is a thin wrapper around the Amazon Web Services API to make creating infrastructure via CloudFormation and deploying Dockerized applications via CodeDeploy, even easier and faster.
 
 ![](http://i.imgur.com/1g6RV2E.gif)
 
-# Gimme gimme gimme
+# Getting Started
 
-Install or upgrade to the latest version of Nova with PIP:
+
+## Requirements & Assumptions
+
+- Python 2.7
+- [AWS Command Line Interface](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) is already setup.
+- Docker is installed and running locally.
+
+## Installing NOVA
+
+Install or upgrade to the latest version of NOVA with pip:
 
     pip install -U gilt-nova
 
-To start using, you need to write your `nova.yml` file.
+## Service Descriptor
 
-Your `nova.yml` file describes the infrastructure needed to run your service. The descriptor file is split into __environments__ and __stacks__. An environment is a group of stacks to be deployed to an AWS account, most services will only have one environment (the only services to have two are those that stand up a sandbox environment in backoffice). An environment has multiple stacks, these are for example production, live-canary and dark-canary/staging stacks.
+To start using, you need to write your `nova.yml` file at the root of your application directory. Your NOVA descriptor file, describes your service and its environments, so the NOVA tool knows how to create its infrastructure and deploy it to said infrastructure.
+
+The schema for the `nova.yml` file is [here](nova/core/spec/nova_service_schema.yml).
+
+Your `nova.yml` file describes the infrastructure needed to run your service. An environment is a group of stacks to be deployed to an AWS account, most services will only have one environment. You can use multiple environments for deploying applications across AWS accounts and/or regions. An environment has multiple stacks, these are for example production, live-canary and dark-canary/staging stacks.
 
 Once you've written your `nova.yml` file, all you need to do is run `nova stack create <environment name>`. Once Cloudformation has finished creating all your environments' resources, you can run `nova deploy <environment name> <stack name>`. If you already have an existing service running in production, you can now move traffic to your new instances and remove the old infrastructure.
 
@@ -28,8 +40,6 @@ Usage Steps:
 # Documentation
 
 __NOTICE: Documentation is still a work in progress.__
-
-See the [Wiki](https://github.com/gilt/nova/wiki)
 
 # Common Install Issues
 
