@@ -17,7 +17,7 @@ set -e
 
 STACK_ENV=`awk '/LAUNCH_ENVIRONMENT=/{ gsub(/"/, "", $2); print $2 }' /opt/nova/docker-env.list | awk -F '=' '{print $2}'`
 
-IFS=$'\r\n' GLOBIGNORE='*' command eval  'docker_args=($(cat /opt/nova/environments/{{stack_type}}/docker-vars.list))'
+IFS=$'\r\n' GLOBIGNORE='*' command eval  'docker_args=($(cat /opt/nova/environments/$STACK_ENV/docker-vars.list))'
 
 eval docker run -d \
   --name={{service_name}} \
