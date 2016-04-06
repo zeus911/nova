@@ -146,31 +146,35 @@ class DeployStack:
 
     def render_stack_files(self, stack):
         deployment_options = ''
-        for opts in stack.deployment_options:
-            for args in opts.items():
-                deployment_options += "{0}={1} ".format(args[0], args[1])
-        deployment_options += "\n"
+        if stack.deployment_options is not None:
+            for opts in stack.deployment_options:
+                for args in opts.items():
+                    deployment_options += "{0}={1} ".format(args[0], args[1])
+            deployment_options += "\n"
         self.render_file('env-vars/docker-opts.list', deployment_options.strip())
 
         deployment_volumes = ''
-        for opts in stack.deployment_volumes:
-            for args in opts.items():
-                deployment_volumes += "-v {0}:{1} ".format(args[0], args[1])
-        deployment_volumes += "\n"
+        if stack.deployment_volumes is not None:
+            for opts in stack.deployment_volumes:
+                for args in opts.items():
+                    deployment_volumes += "-v {0}:{1} ".format(args[0], args[1])
+            deployment_volumes += "\n"
         self.render_file('env-vars/docker-vols.list', deployment_volumes.strip())
 
         deployment_variables = ''
-        for opts in stack.deployment_variables:
-            for args in opts.items():
-                deployment_variables += '-e "{0}={1}"\n'.format(args[0], args[1])
-        deployment_variables += "\n"
+        if stack.deployment_variables is not None:
+            for opts in stack.deployment_variables:
+                for args in opts.items():
+                    deployment_variables += '-e "{0}={1}"\n'.format(args[0], args[1])
+            deployment_variables += "\n"
         self.render_file('env-vars/docker-vars.list', deployment_variables.strip())
 
         deployment_arguments = ''
-        for opts in stack.deployment_arguments:
-            for args in opts.items():
-                deployment_arguments += "{0}={1} ".format(args[0], args[1])
-        deployment_arguments += "\n"
+        if stack.deployment_arguments is not None:
+            for opts in stack.deployment_arguments:
+                for args in opts.items():
+                    deployment_arguments += "{0}={1} ".format(args[0], args[1])
+            deployment_arguments += "\n"
         self.render_file('env-vars/docker-args.list', deployment_arguments.strip())
 
         return [{
