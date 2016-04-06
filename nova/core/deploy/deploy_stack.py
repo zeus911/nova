@@ -100,7 +100,6 @@ class DeployStack:
 
     def create_app_spec(self):
         os.mkdir(os.path.join(self.nova_deploy_dir, 'env-vars'))
-
         files = [
             {
                 'source': 'docker/%s-%s-docker-image.tar.gz' % (self.service.name, self.build_id),
@@ -109,6 +108,7 @@ class DeployStack:
         ]
 
         for stack in self.environment.stacks:
+            os.mkdir(os.path.join(self.nova_deploy_dir, 'env-vars/%s' % stack.stack_type))
             files.extend(self.render_stack_files(stack))
 
         app_stop_scripts = [
@@ -151,7 +151,7 @@ class DeployStack:
                 for args in opts.items():
                     deployment_options += "{0}={1} ".format(args[0], args[1])
             deployment_options += "\n"
-        self.render_file('env-vars/docker-opts.list', deployment_options.strip())
+        self.render_file('env-vars/%s/docker-opts.list' % stack.stack_type, deployment_options.strip())
 
         deployment_volumes = ''
         if stack.deployment_volumes is not None:
@@ -159,7 +159,7 @@ class DeployStack:
                 for args in opts.items():
                     deployment_volumes += "-v {0}:{1} ".format(args[0], args[1])
             deployment_volumes += "\n"
-        self.render_file('env-vars/docker-vols.list', deployment_volumes.strip())
+        self.render_file('env-vars/%s/docker-vols.list' % stack.stack_type, deployment_volumes.strip())
 
         deployment_variables = ''
         if stack.deployment_variables is not None:
@@ -167,7 +167,7 @@ class DeployStack:
                 for args in opts.items():
                     deployment_variables += '-e "{0}={1}"\n'.format(args[0], args[1])
             deployment_variables += "\n"
-        self.render_file('env-vars/docker-vars.list', deployment_variables.strip())
+        self.render_file('env-vars/%s/docker-vars.list' % stack.stack_type, deployment_variables.strip())
 
         deployment_arguments = ''
         if stack.deployment_arguments is not None:
@@ -175,20 +175,20 @@ class DeployStack:
                 for args in opts.items():
                     deployment_arguments += "{0}={1} ".format(args[0], args[1])
             deployment_arguments += "\n"
-        self.render_file('env-vars/docker-args.list', deployment_arguments.strip())
+        self.render_file('env-vars/%s/docker-args.list' % stack.stack_type, deployment_arguments.strip())
 
         return [{
-            'source': 'env-vars/docker-opts.list',
-            'destination': '/opt/nova/environments/%s' % stack.name
+            'source': 'env-vars/%s/docker-opts.list' % stack.stack_type,
+            'destination': '/opt/nova/environments/%s' % stack.stack_type
         },{
-            'source': 'env-vars/docker-vols.list',
-            'destination': '/opt/nova/environments/%s' % stack.name
+            'source': 'env-vars/%s/docker-vols.list' % stack.stack_type,
+            'destination': '/opt/nova/environments/%s' % stack.stack_type
         },{
-            'source': 'env-vars/docker-vars.list',
-            'destination': '/opt/nova/environments/%s' % stack.name
+            'source': 'env-vars/%s/docker-vars.list' % stack.stack_type,
+            'destination': '/opt/nova/environments/%s' % stack.stack_type
         },{
-            'source': 'env-vars/docker-args.list',
-            'destination': '/opt/nova/environments/%s' % stack.name
+            'source': 'env-vars/%s/docker-args.list' % stack.stack_type,
+            'destination': '/opt/nova/environments/%s' % stack.stack_type
         }]
 
     def generate_scripts(self, docker_image):
