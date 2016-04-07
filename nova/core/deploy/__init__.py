@@ -15,7 +15,10 @@ START_DOCKER_CONTAINER="""
 
 set -e
 
-STACK_ENV=`awk '/LAUNCH_ENVIRONMENT=/{ gsub(/"/, "", $2); print $2 }' /opt/nova/docker-env.list | awk -F '=' '{print $2}'`
+INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | awk -F\" '{print $4}')
+
+STACK_ENV=`aws ec2 describe-tags --filters "Name=resource-id,Values=$INSTANCE_ID" "Name=key,Values=Environment" --region=$REGION --output=text | awk '{print $5}'`
 
 IFS=$'\r\n' GLOBIGNORE='*' command eval  'docker_args=($(cat /opt/nova/environments/$STACK_ENV/docker-vars.list))'
 
