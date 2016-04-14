@@ -1,11 +1,10 @@
-import json
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 from collections import OrderedDict
-
 import pyaml
-from cfn_pyplates.core import CloudFormationTemplate
-from termcolor import colored
-
-from nova.core import query_yes_no
+from nova.core.cfn_pyplates.core import CloudFormationTemplate
 from nova.core.exc import NovaError
 from nova.core.spec.environment import Environment
 from nova.core.spec.service_log_mapping import ServiceLogMapping
@@ -24,7 +23,7 @@ class Service(object):
     def yaml(self):
         logs_list = None
         if self.logs is not None:
-            logs_list = map(lambda lm: lm.yaml(), self.logs)
+            logs_list = [lm.yaml() for lm in self.logs]
 
         data = OrderedDict([
             ('service_name', self.name),
@@ -32,9 +31,9 @@ class Service(object):
             ('port', self.port),
             ('healthcheck_url', self.healthcheck_url),
             ('logs', logs_list),
-            ('environments', map(lambda e: e.yaml(), self.environments))
+            ('environments', [e.yaml() for e in self.environments])
         ])
-        return pyaml.dump(OrderedDict((k,v) for k,v in data.iteritems() if v is not None))
+        return pyaml.dump(OrderedDict((k,v) for k,v in data.items() if v is not None))
 
     def get_environment(self, environment_name):
         environment = next((item for item in self.environments if item.name == environment_name), None)
@@ -62,7 +61,7 @@ class Service(object):
     def load(values):
         logs_list = values.get("logs")
         if logs_list is not None:
-            logs_list = map(lambda lm: ServiceLogMapping.load(lm), logs_list)
+            logs_list = [ServiceLogMapping.load(lm) for lm in logs_list]
 
         return Service(
             values.get("service_name"),
@@ -70,5 +69,5 @@ class Service(object):
             values.get("port"),
             values.get("healthcheck_url"),
             logs_list,
-            map(lambda e: Environment.load(e), values.get("environments"))
+            [Environment.load(e) for e in values.get("environments")]
         )

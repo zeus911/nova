@@ -1,10 +1,13 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 import base64
 import pickle
 from collections import OrderedDict
-
 import boto3
-from cfn_pyplates.core import Resource, Output
-from cfn_pyplates.functions import ref, get_att
+from nova.core.cfn_pyplates.core import Resource, Output
+from nova.core.cfn_pyplates.functions import ref, get_att
 
 
 def stack_param_known(k):
@@ -45,7 +48,7 @@ class Stack(object):
             ('deployment_group', self.deployment_group)
         ])
         data.update(self.extra_parameters)
-        return OrderedDict((k,v) for k,v in data.iteritems() if v is not None)
+        return OrderedDict((k,v) for k,v in data.items() if v is not None)
 
     def to_cfn_template(self, service, environment, template_bucket, codedeploy_app_name, cft, aws_profile):
         self.__add_stack(cft, service, environment, template_bucket, aws_profile)
@@ -54,12 +57,12 @@ class Stack(object):
     def __add_stack(self, cft, service, environment, template_bucket, aws_profile):
         other_params = self.extra_parameters.copy()
 
-        if other_params.has_key('DNS') and other_params.get('HostedZoneName') is None:
+        if 'DNS' in other_params and other_params.get('HostedZoneName') is None:
             record = other_params.get('DNS')
             awsprofile = aws_profile or environment.aws_profile
             session = boto3.session.Session(profile_name=awsprofile, region_name=environment.aws_region)
             route53 = session.client('route53')
-            hostedzones = map(lambda z: z.get('Name'), route53.list_hosted_zones_by_name().get('HostedZones'))
+            hostedzones = [z.get('Name') for z in route53.list_hosted_zones_by_name().get('HostedZones')]
             hostedzone = next((z for z in hostedzones if (z in record) or (z[:len(z)-1] in record)), None)
             other_params['HostedZoneName'] = hostedzone
 
@@ -107,7 +110,7 @@ class Stack(object):
 
     @staticmethod
     def load(values):
-        extra_parameters = dict([(k, v) for (k, v) in values.iteritems() if not stack_param_known(k)])
+        extra_parameters = dict([(k, v) for (k, v) in values.items() if not stack_param_known(k)])
         return Stack(
             values.get("stack_name"),
             values.get('stack_type'),
@@ -129,7 +132,7 @@ class Stack(object):
 
     def serialize_logs_settings(self, logs):
         if logs is not None:
-            log_list = map(lambda l: l.yaml(), logs)
+            log_list = [l.yaml() for l in logs]
             return self.pickle_encode(log_list)
         else:
             return base64.b64encode(pickle.dumps([]))

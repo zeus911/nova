@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
@@ -283,7 +286,7 @@ class DeployStack:
     def get_docker_image(self, docker):
         # Find docker image and 'save' it to {nova_deploy_dir}/docker/image-{build-id}.tar.gz
         looking_for_tag="%s:%s" % (self.service.name, self.build_id)
-        matching_images = filter(lambda d: d["RepoTags"][0].endswith(looking_for_tag), docker.images())
+        matching_images = [d for d in docker.images() if d["RepoTags"][0].endswith(looking_for_tag)]
         if not len(matching_images) == 1:
             raise NovaError("Could not find a docker image with a tag for: '%s'" % looking_for_tag)
 

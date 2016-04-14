@@ -1,6 +1,9 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 import os
 import hashlib
-
 from botocore.exceptions import ClientError
 from termcolor import colored
 
@@ -15,7 +18,7 @@ def create_and_upload_stack_template(s3, s3_bucket, service, environment):
         print(colored('Common Nova service templates bucket does not exist, creating...', color='cyan'))
         s3.create_bucket(Bucket=s3_bucket)
 
-    for s, template in environment.get_stack_templates_used(service, s3_bucket).iteritems():
+    for s, template in environment.get_stack_templates_used(service, s3_bucket).items():
         if 's3_key' in template:
             template_file = template['filename']
             template_s3_key = template['s3_key']

@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 import json
 from collections import OrderedDict
 
@@ -5,8 +9,8 @@ from nova.core.exc import NovaError
 from nova.core.spec import resource_name
 from nova.core.spec.stack import Stack
 
-from cfn_pyplates.core import Resource, JSONableDict, Output
-from cfn_pyplates.functions import ref
+from nova.core.cfn_pyplates.core import Resource, JSONableDict, Output
+from nova.core.cfn_pyplates.functions import ref
 
 
 class Environment(object):
@@ -30,9 +34,9 @@ class Environment(object):
             ('deploy_arn', self.deploy_arn),
             ('deployment_bucket', self.deployment_bucket),
             ('deployment_application_id', self.deployment_application_id),
-            ('stacks', map(lambda s: s.yaml(), self.stacks))
+            ('stacks', [s.yaml() for s in self.stacks])
         ])
-        return OrderedDict((k,v) for k,v in data.iteritems() if v is not None)
+        return OrderedDict((k,v) for k,v in data.items() if v is not None)
 
     def get_stack(self, stack_name):
         stack = next((item for item in self.stacks if item.name == stack_name), None)
@@ -65,7 +69,7 @@ class Environment(object):
             try:
                 with open(self.resources, 'r') as extra_resources_file:
                     rjson = json.load(extra_resources_file)
-                    return map(lambda r: JSONableDict(update_dict=r[1], name=r[0]), rjson.iteritems())
+                    return [JSONableDict(update_dict=r[1], name=r[0]) for r in iter(rjson.items())]
             except IOError:
                 raise NovaError("Environment resources '%s' not found." % self.resources)
         else:
@@ -81,5 +85,5 @@ class Environment(object):
             values.get("deploy_arn"),
             values.get("deployment_bucket"),
             values.get("deployment_application_id"),
-            map(lambda s: Stack.load(s), values.get("stacks"))
+            [Stack.load(s) for s in values.get("stacks")]
         )
