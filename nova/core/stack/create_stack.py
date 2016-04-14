@@ -3,7 +3,7 @@ import boto3
 from termcolor import colored
 from botocore.exceptions import ClientError, WaiterError
 
-from nova.core import query_yes_no
+from nova.core import check_latest_version
 from nova.core.stack import create_and_upload_stack_template
 from nova.core.exc import NovaError
 from nova.core.spec.nova_service_loader import NovaServiceLoader
@@ -13,6 +13,7 @@ from nova.core.utils.cfn_waiter import CloudformationWaiter
 class CreateStack:
 
     def __init__(self, aws_profile, environment_name):
+        check_latest_version()
         print("Creating cloudformation scripts...")
         service = NovaServiceLoader(environment_name)
         environment = service.service.get_environment(environment_name)

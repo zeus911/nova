@@ -1,6 +1,21 @@
 import sys
-
+import xmlrpclib
+import pkg_resources
 from termcolor import colored
+from nova.core.exc import NovaError
+
+
+def check_latest_version():
+    current = pkg_resources.require("gilt-nova")[0].version
+    pypi = xmlrpclib.ServerProxy('http://pypi.python.org/pypi')
+    available = pypi.package_releases('gilt-nova')
+    major_available = available[0].split('.')
+    major_current = current.split('.')
+    if available[0] != current:
+        print(colored("The latest version of nova is '%s', please upgrade!" % available[0], color='yellow'))
+
+    if major_available != major_current:
+        raise NovaError('There has been a breaking change, please upgrade before continuing!')
 
 
 def get_git_revision():

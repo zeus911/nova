@@ -13,6 +13,7 @@ class NovaDeploymentsController(CementBaseController):
         stacked_on = 'base'
         stacked_type = 'nested'
         arguments = [
+            (['-f', '--file'], dict(help='Specify the nova service descriptor file to use.')),
             (['-p', '--profile'], dict(help='Override nova.yml AWS profile')),
             (['deploy_args'], dict(action='store', nargs='*'))
         ]
@@ -22,9 +23,10 @@ class NovaDeploymentsController(CementBaseController):
     def default(self):
         profile = self.app.pargs.profile
         deploy_args = self.app.pargs.deploy_args
+        nova_descriptor_file = self.app.pargs.file
         if len(deploy_args) == 2:
-            DeployStack(profile, deploy_args[0], deploy_args[1])
+            DeployStack(profile, deploy_args[0], deploy_args[1], nova_descriptor_file = nova_descriptor_file)
         elif len(deploy_args) == 3:
-            DeployStack(profile, deploy_args[0], deploy_args[1], deploy_args[2])
+            DeployStack(profile, deploy_args[0], deploy_args[1], version=deploy_args[2], nova_descriptor_file = nova_descriptor_file)
         else:
             raise NovaError("Usage: deploy <environment> <stack> (<version>)")

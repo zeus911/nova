@@ -11,7 +11,10 @@ from nova.core.spec.service import Service
 
 class NovaServiceLoader:
 
-    def __init__(self, environment=None):
+    def __init__(self, environment=None, nova_descriptor_file=None):
+        if nova_descriptor_file is None:
+            nova_descriptor_file = "nova.yml"
+
         self.environment = environment
         self.templates_used = dict()
         yaml.add_constructor("!include", yaml_include)
@@ -21,17 +24,17 @@ class NovaServiceLoader:
 
         v = Validator(schema)
         try:
-            with open('nova.yml', 'r') as novaYaml:
+            with open(nova_descriptor_file, 'r') as novaYaml:
                 self.service_spec = yaml.safe_load(novaYaml)
 
             # Validate loaded dictionary
             valid = v.validate(self.service_spec)
             if not valid:
-                raise NovaError("Invalid nova.yml file: %s" % v.errors)
+                raise NovaError("Invalid nova service descriptor file '%s': %s" % (nova_descriptor_file, v.errors))
             else:
                 self.service = Service.load(self.service_spec)
         except IOError:
-            raise NovaError("No nova.yml found")
+            raise NovaError("No nova service descriptor found at '%s'" % nova_descriptor_file)
 
     def set_code_deploy_app(self, environment_name, code_deploy_app_id):
         self.service.set_code_deploy_app(environment_name, code_deploy_app_id)

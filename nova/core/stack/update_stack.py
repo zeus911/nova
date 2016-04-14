@@ -1,10 +1,9 @@
 from __future__ import unicode_literals
 import boto3
-import time
 from termcolor import colored
 from botocore.exceptions import ClientError, WaiterError
 
-from nova.core import query_yes_no, get_git_revision
+from nova.core import query_yes_no, get_git_revision, check_latest_version
 from nova.core.stack import create_and_upload_stack_template
 from nova.core.exc import NovaError
 from nova.core.spec.nova_service_loader import NovaServiceLoader
@@ -18,6 +17,7 @@ def green(message):
 class UpdateStack:
 
     def __init__(self, aws_profile, environment_name):
+        check_latest_version()
         self.environment_name = environment_name
         print(colored("Creating cloudformation scripts...", color='cyan'))
         self.service = NovaServiceLoader(environment_name)

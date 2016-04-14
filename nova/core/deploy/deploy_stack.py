@@ -14,7 +14,7 @@ from docker import Client as DockerClient
 from docker.utils import kwargs_from_env
 from jinja2 import Template
 
-from nova.core import templates, get_git_revision
+from nova.core import templates, get_git_revision, check_latest_version
 from nova.core.deploy import *
 from nova.core.exc import NovaError
 from nova.core.utils import tarfile_progress as tarfile
@@ -24,11 +24,12 @@ from nova.core.utils.s3_progress import ProgressPercentage
 
 class DeployStack:
 
-    def __init__(self, aws_profile, environment_name, stack_name, version=None):
+    def __init__(self, aws_profile, environment_name, stack_name, version=None, nova_descriptor_file=None):
         atexit.register(self.cleanup)
+        check_latest_version()
         self.build_id = version if version else get_git_revision()
         print(colored("Creating deployment bundle for revision '%s'..." % self.build_id, color='cyan'))
-        self.service_loader = NovaServiceLoader(environment_name)
+        self.service_loader = NovaServiceLoader(environment_name, nova_descriptor_file)
         self.service = self.service_loader.service
         self.environment = self.service_loader.service.get_environment(environment_name)
         self.stack = self.environment.get_stack(stack_name)
@@ -58,9 +59,9 @@ class DeployStack:
         self.nova_deploy_dir = tempfile.mkdtemp(prefix="%s-nova-deploy-" % self.service.name)
         print(colored("Generating deployment scripts in '%s'..." % self.nova_deploy_dir, color='cyan'))
 
-        docker_image = self.get_docker_image(docker)
         if existing_revision is None:
             print(colored("No existing revision found, creating...", color='magenta'))
+            docker_image = self.get_docker_image(docker)
             self.create_nova_deploy_dirs()
             self.create_app_spec()
             self.generate_scripts(docker_image)
