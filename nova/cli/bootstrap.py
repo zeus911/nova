@@ -12,6 +12,7 @@ from nova.cli.controllers.base import NovaBaseController
 from nova.cli.controllers.update.update import NovaUpdateController
 from nova.cli.controllers.deploy.deploy import NovaDeploymentsController
 from nova.cli.controllers.stack.stack import NovaStacksController
+from nova.cli.controllers.stash.stash import NovaStashController
 
 
 def load(app):
@@ -24,3 +25,4 @@ def load(app):
     handler.register(NovaUpdateController)
     handler.register(NovaDeploymentsController)
     handler.register(NovaStacksController)
+    handler.register(NovaStashController)
