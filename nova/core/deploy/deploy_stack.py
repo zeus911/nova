@@ -57,10 +57,10 @@ class DeployStack:
 
         # Create tmp/nova-deploy directory
         self.nova_deploy_dir = tempfile.mkdtemp(prefix="%s-nova-deploy-" % self.service.name)
-        print(colored("Generating deployment scripts in '%s'..." % self.nova_deploy_dir, color='cyan'))
 
         if existing_revision is None:
             print(colored("No existing revision found, creating...", color='magenta'))
+            print(colored("Generating deployment scripts in '%s'..." % self.nova_deploy_dir, color='cyan'))
             docker_image = self.get_docker_image(docker)
             self.create_nova_deploy_dirs()
             self.create_app_spec()
