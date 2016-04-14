@@ -26,8 +26,11 @@ class Encrypt:
 
         session = Session(profile_name=aws_profile, region_name=aws_region)
 
-        account_id = session.client('iam').list_account_aliases()['AccountAliases'][0]
-        deployment_bucket_name = aws_bucket or 'novastash_%s' % account_id
+        if aws_bucket is None:
+            account_id = session.client('iam').list_account_aliases()['AccountAliases'][0]
+            deployment_bucket_name = 'novastash_%s' % account_id
+        else:
+            deployment_bucket_name = aws_bucket
 
         s3 = session.client('s3')
         kms = session.client('kms')
