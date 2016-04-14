@@ -33,7 +33,7 @@ class NovaStashController(CementBaseController):
             region = self.app.pargs.region
             bucket = self.app.pargs.bucket
             key = self.app.pargs.stash_args[0]
-            Decrypt(profile, region, bucket, key)
+            Decrypt(key, profile, region, bucket)
         else:
             raise NovaError("Usage: nova stash get <environment> <key>")
 
@@ -45,6 +45,6 @@ class NovaStashController(CementBaseController):
             bucket = self.app.pargs.bucket
             key = self.app.pargs.stash_args[0]
             value = self.app.pargs.stash_args[1]
-            Encrypt(profile, region, bucket, key, value)
+            Encrypt(key, value, profile, region, bucket)
         else:
             raise NovaError("Usage: nova stash put <environment> <key> <value>")

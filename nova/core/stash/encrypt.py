@@ -18,15 +18,13 @@ import sys
 
 class Encrypt:
 
-    def __init__(self, aws_profile, aws_region, aws_bucket, stash_key, value, kms_key="alias/novastash", context=None):
+    def __init__(self, stash_key, value, aws_profile=None, aws_region=None, aws_bucket=None, kms_key="alias/novastash", context=None):
         check_latest_version()
 
         if not context:
             context = {}
 
-        awsprofile = aws_profile or 'default'
-        awsregion = aws_region or 'us-east-1'
-        session = Session(profile_name=awsprofile, region_name=awsregion)
+        session = Session(profile_name=aws_profile, region_name=aws_region)
 
         account_id = session.client('iam').list_account_aliases()['AccountAliases'][0]
         deployment_bucket_name = aws_bucket or 'novastash_%s' % account_id
