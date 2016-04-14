@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 import sys
+import subprocess
 import pkg_resources
 from six.moves import input
 import six.moves.xmlrpc_client
@@ -24,7 +25,6 @@ def check_latest_version():
 
 
 def get_git_revision():
-    import subprocess
     return subprocess.check_output(['git', 'describe', '--tags', '--dirty', '--always']).strip('v').strip()
 
 

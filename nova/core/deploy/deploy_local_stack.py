@@ -230,7 +230,7 @@ class DeployLocalStack:
                 print(colored("Cleaning up deployment bundle...", color='green'))
                 shutil.rmtree(self.nova_deploy_dir)
         except Exception as e:
-            print(colored(e.message, color='red'))
+            print(colored(str(e), color='red'))
 
     @staticmethod
     def check_revision_exists(s3, deployment_bucket_name, key):

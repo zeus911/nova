@@ -77,7 +77,7 @@ class CreateStack:
             else:
                 raise NovaError("Stack creation was un-successful: %s" % stack.stack_status_reason)
         except ClientError as e:
-            raise NovaError(e.message)
+            raise NovaError(str(e))
         except WaiterError as e:
-            raise NovaError(e.message)
+            raise NovaError(str(e))
 

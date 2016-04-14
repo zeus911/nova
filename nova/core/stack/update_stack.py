@@ -68,9 +68,9 @@ class UpdateStack:
             #     cf_client.delete_change_set(StackName=cf_stack.stack_name, ChangeSetName=cs_id)
             #     print(colored('Empty changeset removed.', 'cyan'))
         except ClientError as e:
-            raise NovaError(e.message)
+            raise NovaError(str(e))
         except WaiterError as e:
-            raise NovaError(e.message)
+            raise NovaError(str(e))
 
     def do_stack_update(self, stack_name, changeset_id, cf_client, cloudformation):
         try:
@@ -116,6 +116,6 @@ class UpdateStack:
             else:
                 raise NovaError("Stack update was un-successful: %s - %s" % (stack.stack_status, stack.stack_status_reason))
         except ClientError as e:
-            raise NovaError(e.message)
+            raise NovaError(str(e))
         except WaiterError as e:
-            raise NovaError(e.message)
+            raise NovaError(str(e))
