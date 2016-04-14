@@ -15,7 +15,7 @@ if not os.path.exists('~/.nova/'):
 install_reqs = parse_requirements('requirements.txt', session=False)
 
 setup(name='gilt-nova',
-    version='10.4.1.dev0',
+    version='10.4.1',
     description="Collection of utilities to easily deploy services to AWS.",
     long_description="Collection of utilities to easily deploy services to AWS.",
     license='Apache License 2.0',
