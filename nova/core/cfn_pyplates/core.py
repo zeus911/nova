@@ -14,6 +14,8 @@
 
 These are all available without preamble in a pyplate's global namespace.
 """
+from __future__ import absolute_import
+from __future__ import print_function
 import inspect
 import json
 import traceback

@@ -4,17 +4,15 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import sys
 import pkg_resources
+from six.moves import input
+import six.moves.xmlrpc_client
 from termcolor import colored
 from nova.core.exc import NovaError
-try:
-    import xmlrpclib
-except ImportError:
-    import xmlrpc.client as xmlrpclib
 
 
 def check_latest_version():
     current = pkg_resources.require("gilt-nova")[0].version
-    pypi = xmlrpclib.ServerProxy('http://pypi.python.org/pypi')
+    pypi = six.moves.xmlrpc_client.ServerProxy('http://pypi.python.org/pypi')
     available = pypi.package_releases('gilt-nova')
     major_available = available[0].split('.')[0]
     major_current = current.split('.')[0]
@@ -52,10 +50,7 @@ def query_yes_no(question, default="yes"):
 
     while True:
         sys.stdout.write(question + prompt)
-        try:
-            choice = raw_input().lower()
-        except NameError:
-            choice = input().lower()
+        choice = input().lower()
 
         if default is not None and choice == '':
             return valid[default]

@@ -49,8 +49,7 @@ Notes:
 
 # Where needed, exception error messages are stored on the intrinsic function
 # wrappers to make testing the function failure cases very easy
-
-
+from __future__ import absolute_import
 from nova.core.cfn_pyplates.exceptions import IntrinsicFuncInputError
 
 __all__ = [

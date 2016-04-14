@@ -10,5 +10,5 @@ def resource_name(snake_case):
 
 
 def yaml_include(loader, node):
-    with file(node.value) as inputfile:
+    with open(node.value) as inputfile:
         return yaml.load(inputfile)

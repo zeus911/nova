@@ -9,8 +9,9 @@
 #
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-
+from __future__ import absolute_import
 from collections import defaultdict
+from six.moves import input
 
 prompt_str = '''Key "{0}" not found in the supplied options mapping.
 You can enter it now (or leave blank for None/null):
@@ -23,10 +24,7 @@ class OptionsMapping(defaultdict):
 
     def __missing__(self, key):
         try:
-            try:
-                value = raw_input(prompt_str.format(key))
-            except NameError:
-                value = input(prompt_str.format(key))
+            value = input(prompt_str.format(key))
         except KeyboardInterrupt:
             # Catch the sigint here, since the user's pretty likely to
             # Ctrl-C and go fix the options mapping input file
