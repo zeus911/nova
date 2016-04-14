@@ -21,7 +21,8 @@ class Decrypt:
         if not context:
             context = {}
 
-        session = Session(profile_name=aws_profile, region_name=aws_region)
+        awsregion = aws_region or 'us-east-1'
+        session = Session(profile_name=aws_profile, region_name=awsregion)
 
         if aws_bucket is None:
             account_id = session.client('iam').list_account_aliases()['AccountAliases'][0]
