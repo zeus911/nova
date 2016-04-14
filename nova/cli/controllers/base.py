@@ -1,6 +1,7 @@
 """nova base controller."""
 
 from cement.core.controller import CementBaseController, expose
+from nova.core import check_latest_version
 import pkg_resources
 
 
@@ -22,4 +23,5 @@ class NovaBaseController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
+        check_latest_version()
         self.app.args.print_help()
