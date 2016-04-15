@@ -25,7 +25,8 @@ def check_latest_version():
 
 
 def get_git_revision():
-    return subprocess.check_output(['git', 'describe', '--tags', '--dirty', '--always']).strip('v').strip()
+    git_version = subprocess.check_output(['git', 'describe', '--tags', '--dirty', '--always'])
+    return git_version.decode(sys.stdout.encoding).strip('v').strip()
 
 
 def query_yes_no(question, default="yes"):
