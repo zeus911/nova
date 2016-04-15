@@ -9,7 +9,7 @@ from termcolor import colored
 
 
 def progressprint(complete):
-    barlen = complete / 2
+    barlen = int(complete / 2)
     output = '\r|{0}| {1}% '.format('#' * barlen + '-' * (50 - barlen), str(complete))
     sys.stdout.write(colored(output, color='cyan'))
     sys.stdout.flush()
