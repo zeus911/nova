@@ -101,6 +101,66 @@ autoscaling_enter_standby() {
         return 0
     fi
 
+    msg "Checking to see if ASG ${asg_name} had AZRebalance process suspended previously"
+    local azrebalance_suspended=$($AWS_CLI autoscaling describe-auto-scaling-groups \
+        --auto-scaling-group-name "${asg_name}" \
+        --query 'AutoScalingGroups[].SuspendedProcesses' \
+        --output text | grep -c 'AZRebalance')
+    if [ $azrebalance_suspended -eq 1 ]; then
+        msg "ASG ${asg_name} had AZRebalance suspended, creating flag file /tmp/azrebalanced"
+        # Create a "flag" file to denote that the ASG had AZRebalance enabled
+        touch /tmp/azrebalanced
+    else
+        msg "ASG ${asg_name} didn't have AZRebalance suspended, suspending"
+        $AWS_CLI autoscaling suspend-processes \
+            --auto-scaling-group-name "${asg_name}" \
+            --scaling-processes AZRebalance
+        if [ $? != 0 ]; then
+            msg "Failed to suspend the AZRebalance process for ASG ${asg_name}. Aborting as this may cause issues."
+            return 1
+        fi
+    fi
+
+    msg "Checking to see if ASG ${asg_name} had ScheduledActions process suspended previously"
+    local scheduledactions_suspended=$($AWS_CLI autoscaling describe-auto-scaling-groups \
+        --auto-scaling-group-name "${asg_name}" \
+        --query 'AutoScalingGroups[].SuspendedProcesses' \
+        --output text | grep -c 'ScheduledActions')
+    if [ $scheduledactions_suspended -eq 1 ]; then
+        msg "ASG ${asg_name} had ScheduledActions suspended, creating flag file /tmp/scheduledactions"
+        # Create a "flag" file to denote that the ASG had ScheduledActions enabled
+        touch /tmp/scheduledactions
+    else
+        msg "ASG ${asg_name} didn't have ScheduledActions suspended, suspending"
+        $AWS_CLI autoscaling suspend-processes \
+            --auto-scaling-group-name "${asg_name}" \
+            --scaling-processes ScheduledActions
+        if [ $? != 0 ]; then
+            msg "Failed to suspend the ScheduledActions process for ASG ${asg_name}. Aborting as this may cause issues."
+            return 1
+        fi
+    fi
+
+    msg "Checking to see if ASG ${asg_name} had AlarmNotification process suspended previously"
+    local alarmnotification_suspended=$($AWS_CLI autoscaling describe-auto-scaling-groups \
+        --auto-scaling-group-name "${asg_name}" \
+        --query 'AutoScalingGroups[].SuspendedProcesses' \
+        --output text | grep -c 'AlarmNotification')
+    if [ $alarmnotification_suspended -eq 1 ]; then
+        msg "ASG ${asg_name} had AlarmNotification suspended, creating flag file /tmp/alarmnotification"
+        # Create a "flag" file to denote that the ASG had AlarmNotification enabled
+        touch /tmp/alarmnotification
+    else
+        msg "ASG ${asg_name} didn't have AlarmNotification suspended, suspending"
+        $AWS_CLI autoscaling suspend-processes \
+            --auto-scaling-group-name "${asg_name}" \
+            --scaling-processes AlarmNotification
+        if [ $? != 0 ]; then
+            msg "Failed to suspend the AlarmNotification process for ASG ${asg_name}. Aborting as this may cause issues."
+            return 1
+        fi
+    fi
+
     msg "Checking to see if ASG ${asg_name} will let us decrease desired capacity"
     local min_desired=$($AWS_CLI autoscaling describe-auto-scaling-groups \
         --auto-scaling-group-name "${asg_name}" \
@@ -215,6 +275,51 @@ autoscaling_exit_standby() {
         fi
     else
         msg "Auto scaling group was not decremented previously, not incrementing min value"
+    fi
+
+    if [ -a /tmp/azrebalanced ]; then
+        msg "ASG ${asg_name} had AZRebalance suspended previously, leaving it suspended"
+        msg "Removing /tmp/azrebalanced flag file"
+        rm -f /tmp/azrebalanced
+    else
+        msg "Resuming AZRebalance process for ASG ${asg_name}"
+        $AWS_CLI autoscaling resume-processes \
+            --auto-scaling-group-name "${asg_name}" \
+            --scaling-processes AZRebalance ScheduledActions AlarmNotification
+        if [ $? != 0 ]; then
+            msg "Failed to resume the AZRebalance process for ASG ${asg_name}. This may cause issues!"
+            return 1
+        fi
+    fi
+
+    if [ -a /tmp/scheduledactions ]; then
+        msg "ASG ${asg_name} had ScheduledActions suspended previously, leaving it suspended"
+        msg "Removing /tmp/scheduledactions flag file"
+        rm -f /tmp/scheduledactions
+    else
+        msg "Resuming ScheduledActions process for ASG ${asg_name}"
+        $AWS_CLI autoscaling resume-processes \
+            --auto-scaling-group-name "${asg_name}" \
+            --scaling-processes ScheduledActions
+        if [ $? != 0 ]; then
+            msg "Failed to resume the ScheduledActions process for ASG ${asg_name}. This may cause issues!"
+            return 1
+        fi
+    fi
+
+    if [ -a /tmp/alarmnotification ]; then
+        msg "ASG ${asg_name} had AlarmNotification suspended previously, leaving it suspended"
+        msg "Removing /tmp/alarmnotification flag file"
+        rm -f /tmp/alarmnotification
+    else
+        msg "Resuming AlarmNotification process for ASG ${asg_name}"
+        $AWS_CLI autoscaling resume-processes \
+            --auto-scaling-group-name "${asg_name}" \
+            --scaling-processes AlarmNotification
+        if [ $? != 0 ]; then
+            msg "Failed to resume the AlarmNotification process for ASG ${asg_name}. This may cause issues!"
+            return 1
+        fi
     fi
 
     return 0

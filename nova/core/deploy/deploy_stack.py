@@ -116,11 +116,12 @@ class DeployStack:
             files.extend(self.render_stack_files(stack))
 
         app_stop_scripts = [
+            {'location': 'cleanup_space.sh', 'timeout': 300}
+        ]
+        before_install_scripts = [
             {'location': 'deregister_from_elb.sh'},
-            {'location': 'cleanup_space.sh', 'timeout': 300},
             {'location': 'kill_docker_container.sh', 'timeout': 300}
         ]
-        before_install_scripts = []
         after_install_scripts = [
             {'location': 'load_docker_container.sh'}
         ]
