@@ -4,9 +4,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import os
 import hashlib
+import git
 from botocore.exceptions import ClientError
 from termcolor import colored
-
 from nova.core.exc import NovaError
 
 
@@ -29,6 +29,11 @@ def create_and_upload_stack_template(s3, s3_bucket, service, environment):
 
             if not os.path.exists(user_home_dir):
                 raise NovaError("Unable to find NOVA templates. Please create templates under '~/.nova'.")
+
+            repo = git.Repo(user_home_dir)
+            # If repo is dirty or has un-pushed commits we want to fail here
+            if repo.is_dirty() or bool(repo.git.rev_list("origin/master..master")):
+                raise NovaError("You have local modifications to '~/.nova'. These are shared templates! Please create a pull request!")
 
             template_file = os.path.join(user_home_dir, template_version, template_filename)
             template_s3_key = '%s/%s' % (template_version, template_filename)
