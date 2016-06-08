@@ -15,7 +15,7 @@ from nova.core.utils.cfn_waiter import CloudformationWaiter
 
 class CreateStack:
 
-    def __init__(self, aws_profile, environment_name):
+    def __init__(self, aws_profile, environment_name, cf_template_out=None):
         check_latest_version()
         print("Creating cloudformation scripts...")
         service = NovaServiceLoader(environment_name)
@@ -29,7 +29,7 @@ class CreateStack:
         s3_bucket = 'nova-deployment-templates-%s' % account_id
 
         create_and_upload_stack_template(s3, s3_bucket, service.service, environment)
-        cloudformation_template = service.service.to_cfn_template(environment, s3_bucket, aws_profile)
+        cloudformation_template = service.service.to_cfn_template(environment, s3_bucket, aws_profile, cf_template_out)
 
         try:
             stack_id = cloudformation.create_stack(

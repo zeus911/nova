@@ -17,6 +17,7 @@ class NovaStacksController(CementBaseController):
         stacked_type = 'nested'
         arguments = [
             (['-p', '--profile'], dict(help='Override nova.yml AWS profile')),
+            (['-o', '--output'], dict(help='Specify a file to output the template to.')),
             (['environment'], dict(action='store', nargs='*'))
         ]
         usage = "nova stack [create|update] <environment>"
@@ -27,16 +28,18 @@ class NovaStacksController(CementBaseController):
 
     @expose(help='Create NOVA service stack')
     def create(self):
+        cf_template_out = self.app.pargs.output
         if self.app.pargs.environment:
             profile = self.app.pargs.profile
-            CreateStack(profile, self.app.pargs.environment[0])
+            CreateStack(profile, self.app.pargs.environment[0], cf_template_out)
         else:
             raise NovaError("You must provide an environment to create")
 
     @expose(help='Update NOVA service stack')
     def update(self):
+        cf_template_out = self.app.pargs.output
         if self.app.pargs.environment:
             profile = self.app.pargs.profile
-            UpdateStack(profile, self.app.pargs.environment[0])
+            UpdateStack(profile, self.app.pargs.environment[0], cf_template_out)
         else:
             raise NovaError("You must provide an environment to update")

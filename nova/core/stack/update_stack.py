@@ -19,7 +19,7 @@ def green(message):
 
 class UpdateStack:
 
-    def __init__(self, aws_profile, environment_name):
+    def __init__(self, aws_profile, environment_name, cf_template_out=None):
         check_latest_version()
         self.environment_name = environment_name
         print(colored("Creating cloudformation scripts...", color='cyan'))
@@ -35,7 +35,7 @@ class UpdateStack:
         s3_bucket = 'nova-deployment-templates-%s' % account_id
 
         create_and_upload_stack_template(s3, s3_bucket, self.service.service, self.environment)
-        cloudformation_template = self.service.service.to_cfn_template(self.environment, s3_bucket, aws_profile)
+        cloudformation_template = self.service.service.to_cfn_template(self.environment, s3_bucket, aws_profile, cf_template_out)
 
         try:
             changeset_id = "cs%s" % get_git_revision().replace(".", "x")

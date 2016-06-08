@@ -4,6 +4,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from collections import OrderedDict
 import pyaml
+import json
 from nova.core.cfn_pyplates.core import CloudFormationTemplate
 from nova.core.exc import NovaError
 from nova.core.spec.environment import Environment
@@ -45,15 +46,15 @@ class Service(object):
     def set_code_deploy_app(self, environment_name, code_deploy_app_id):
         self.get_environment(environment_name).deployment_application_id = code_deploy_app_id
 
-    def to_cfn_template(self, environment, template_bucket, aws_profile):
+    def to_cfn_template(self, environment, template_bucket, aws_profile, cf_template_out=None):
         description = "%s %s %s stack" % (self.team_name, self.name, environment.name)
         cfn = CloudFormationTemplate(description=description)
         environment.to_cfn_template(self, template_bucket, cfn, aws_profile)
         json_cfn = cfn.json
 
-        # if query_yes_no("Output Cloudformation to nova-cloudformation.json?"):
-        #     with open('nova-cloudformation.json', 'w') as out_json:
-        #         out_json.write(json.dumps(json.loads(json_cfn), indent=2))
+        if cf_template_out is not None:
+            with open(cf_template_out, 'w') as out_json:
+                out_json.write(json.dumps(json.loads(json_cfn), indent=2))
 
         return json_cfn
 
