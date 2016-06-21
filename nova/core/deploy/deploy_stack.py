@@ -38,7 +38,10 @@ class DeployStack:
         self.stack = self.environment.get_stack(stack_name)
 
         kwargs = kwargs_from_env()
-        kwargs['tls'].assert_hostname = False
+        try:
+            kwargs['tls'].assert_hostname = False
+        except KeyError:
+            pass
         kwargs['version'] = 'auto'
         docker = DockerClient(**kwargs)
         awsprofile = aws_profile or self.environment.aws_profile
