@@ -1,4 +1,4 @@
-# Common Instalation Issues
+# Common Installation Issues
 
 ## `ImportError: No module named _markerlib`
 
