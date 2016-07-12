@@ -1,4 +1,4 @@
-[![license](https://img.shields.io/github/license/gilt/nova.svg?maxAge=2592000)]() [![downloads](https://img.shields.io/pypi/dm/gilt-nova.svg?maxAge=2592000)]() [![latest](https://img.shields.io/pypi/v/gilt-nova.svg?maxAge=2592000)]()  [![python](https://img.shields.io/pypi/pyversions/gilt-nova.svg?maxAge=2592000)]()
+[![Build Status](https://travis-ci.org/gilt/nova.svg?branch=master)](https://travis-ci.org/gilt/nova) [![license](https://img.shields.io/github/license/gilt/nova.svg?maxAge=2592000)](https://github.com/gilt/nova/blob/master/LICENSE) [![downloads](https://img.shields.io/pypi/dm/gilt-nova.svg?maxAge=2592000)](https://pypi.python.org/pypi/gilt-nova/) [![latest](https://img.shields.io/pypi/v/gilt-nova.svg?maxAge=2592000)](https://pypi.python.org/pypi/gilt-nova/)  [![python](https://img.shields.io/pypi/pyversions/gilt-nova.svg?maxAge=2592000)](https://pypi.python.org/pypi/gilt-nova/)
 
 NOVA
 ================
