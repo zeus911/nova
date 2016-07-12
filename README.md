@@ -1,3 +1,5 @@
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)]() [![downloads](https://img.shields.io/pypi/dm/gilt-nova.svg?maxAge=2592000)]() [![latest](https://img.shields.io/pypi/v/gilt-nova.svg?maxAge=2592000)]()  [![python](https://img.shields.io/pypi/pyversions/gilt-nova.svg?maxAge=2592000)]()
+
 NOVA
 ================
 
