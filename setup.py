@@ -20,18 +20,23 @@ setup(name='gilt-nova',
     long_description="Collection of utilities to easily deploy services to AWS.",
     license='Apache License 2.0',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
 
         'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
         'Topic :: Software Development :: Build Tools',
 
-        'License :: OSI Approved :: Apache Software License',
+        'License :: OSI Approved :: MIT License',
 
         'Operating System :: POSIX :: Linux',
 
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+
+        'Programming Language :: Python :: Implementation :: CPython',
     ],
     keywords='AWS CodeDeploy Cloudformation Deployment Gilt',
     author='Gilt Groupe',
