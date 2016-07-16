@@ -1,6 +1,6 @@
 
 
-LOAD_DOCKER_CONTAINER="""
+LOAD_DOCKER_CONTAINER = """
 #!/usr/bin/env bash
 
 set -e
@@ -10,7 +10,7 @@ if [[ "$(docker images -q {{image}} 2> /dev/null)" == "" ]]; then
 fi
 """
 
-START_DOCKER_CONTAINER="""
+START_DOCKER_CONTAINER = """
 #!/usr/bin/env bash
 
 set -e
@@ -32,7 +32,7 @@ eval docker run -d \
   $(< /opt/nova/environments/$STACK_ENV/docker-args.list)
 """
 
-VALIDATE="""
+VALIDATE = """
 #!/bin/bash
 
 set -x

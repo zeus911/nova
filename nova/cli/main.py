@@ -1,10 +1,20 @@
-"""nova main application entry point."""
+"""
+nova main application entry point.
+"""
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
 import sys
+import traceback
+
+from cement.core.foundation import CementApp
+from cement.utils.misc import init_defaults
+from cement.core.exc import FrameworkError, CaughtSignal
+from cement.ext.ext_argparse import ArgParseArgumentHandler
+from nova.core import exc
 
 # this has to happen after you import sys, but before you import anything
 # from Cement "source: https://github.com/datafolklabs/cement/issues/290"
@@ -14,10 +24,6 @@ if '--debug' in sys.argv:
 else:
     TOGGLE_DEBUG = False
 
-from cement.core.foundation import CementApp
-from cement.utils.misc import init_defaults
-from cement.core.exc import FrameworkError, CaughtSignal
-from nova.core import exc
 
 # Application default.  Should update config/nova.conf to reflect any
 # changes, or additions here.
@@ -29,6 +35,14 @@ defaults['nova']['plugin_config_dir'] = '~/.nova/plugins.d'
 defaults['nova']['plugin_dir'] = '~/.nova/plugins'
 # External templates (generally, do not ship with application code)
 defaults['nova']['template_dir'] = '~/.nova/templates'
+
+
+class NovaArgHandler(ArgParseArgumentHandler):
+    class Meta:
+        label = 'nova_args_handler'
+
+    def error(self, message):
+        super(NovaArgHandler, self).error("unknown args")
 
 
 class NovaApp(CementApp):
@@ -46,6 +60,8 @@ class NovaApp(CementApp):
         # Internal templates (ship with application code)
         template_module = 'nova.core.templates'
 
+        arg_handler = NovaArgHandler
+
         debug = TOGGLE_DEBUG
 
 
@@ -60,9 +76,6 @@ def main():
             global sys
             # Default our exit status to 0 (non-error)
             code = 0
-
-            # Setup the application
-            #app.setup()
 
             # Dump all arguments into nova log
             app.log.debug(sys.argv)
@@ -85,15 +98,17 @@ def main():
         finally:
             # Print an exception (if it occurred) and --debug was passed
             if app.debug:
-                import sys
-                import traceback
-
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 if exc_traceback is not None:
                     traceback.print_exc()
 
-        # # Close the application
+        # Close the application
         app.close(code)
+
+
+def get_test_app(**kw):
+    app = NovaApp(**kw)
+    return app
 
 
 if __name__ == '__main__':

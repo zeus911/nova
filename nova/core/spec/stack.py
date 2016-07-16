@@ -15,8 +15,8 @@ def stack_param_known(k):
 
 
 class Stack(object):
-    base_template_url='https://s3.amazonaws.com/%s/%s/%s.json'
-    base_custom_template_url='https://s3.amazonaws.com/%s/%s/%s_%s'
+    base_template_url = 'https://s3.amazonaws.com/%s/%s/%s.json'
+    base_custom_template_url = 'https://s3.amazonaws.com/%s/%s/%s_%s'
 
     def __init__(self, name, stack_type, custom_template, template, template_version, deploy_config, deployment_options,
                  deployment_volumes, deployment_variables, deployment_arguments, deployment_group, extra_parameters):
@@ -48,7 +48,7 @@ class Stack(object):
             ('deployment_group', self.deployment_group)
         ])
         data.update(self.extra_parameters)
-        return OrderedDict((k,v) for k,v in data.items() if v is not None)
+        return OrderedDict((k, v) for k, v in data.items() if v is not None)
 
     def to_cfn_template(self, service, environment, template_bucket, codedeploy_app_name, cft, aws_profile):
         self.__add_stack(cft, service, environment, template_bucket, aws_profile)
@@ -63,7 +63,7 @@ class Stack(object):
             session = boto3.session.Session(profile_name=awsprofile, region_name=environment.aws_region)
             route53 = session.client('route53')
             hostedzones = [z.get('Name') for z in route53.list_hosted_zones_by_name().get('HostedZones')]
-            hostedzone = next((z for z in hostedzones if (z in record) or (z[:len(z)-1] in record)), None)
+            hostedzone = next((z for z in hostedzones if (z in record) or (z[:len(z) - 1] in record)), None)
             other_params['HostedZoneName'] = hostedzone
 
         other_params.update([

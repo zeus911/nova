@@ -1,0 +1,19 @@
+service_name: test-service
+team_name: someotherteam
+port: 9000
+healthcheck_url: /new_healthcheck
+
+environments:
+  - name: test-environment
+    aws_profile: my-profile
+    aws_region: us-east-1
+    deploy_arn: arn:aws:iam::012345678912:role/my-code-deploy-role
+    deployment_bucket: my-bucket
+    deployment_application_id: some-deploy-id
+    stacks:
+      - stack_name: test-stack
+        stack_type: production
+        stack_custom_template: 'test-template-2.json'
+        stack_deploy_config: OneAtATime
+        deployment_group: some-deployment-group
+        SomeRandomParameter: some-random-value

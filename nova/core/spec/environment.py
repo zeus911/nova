@@ -2,13 +2,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+
 import json
 from collections import OrderedDict
 
 from nova.core.exc import NovaError
 from nova.core.spec import resource_name
 from nova.core.spec.stack import Stack
-
 from nova.core.cfn_pyplates.core import Resource, JSONableDict, Output
 from nova.core.cfn_pyplates.functions import ref
 
@@ -36,7 +36,7 @@ class Environment(object):
             ('deployment_application_id', self.deployment_application_id),
             ('stacks', [s.yaml() for s in self.stacks])
         ])
-        return OrderedDict((k,v) for k,v in data.items() if v is not None)
+        return OrderedDict((k, v) for k, v in data.items() if v is not None)
 
     def get_stack(self, stack_name):
         stack = next((item for item in self.stacks if item.name == stack_name), None)

@@ -1,0 +1,63 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "someotherteam test-service test-environment stack",
+  "Metadata": {},
+  "Parameters": {},
+  "Mappings": {},
+  "Resources": {
+    "TestServiceApplicationStack": {
+      "Type": "AWS::CodeDeploy::Application"
+    },
+    "Test-Stack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": "https://s3.amazonaws.com/nova-deployment-templates-test-account/test-service/test-stack_test-template-2.json",
+        "TimeoutInMinutes": 60,
+        "Parameters": {
+          "ApplicationName": "test-service",
+          "LogsList": "KGxwMAou",
+          "DockerDeploymentArguments": "KGxwMAou",
+          "HealthcheckUrl": "/new_healthcheck",
+          "DockerDeploymentVolumes": "KGxwMAou",
+          "SomeRandomParameter": "some-random-value",
+          "DockerDeploymentVariables": "KGxwMAou",
+          "TeamName": "someotherteam",
+          "DockerDeploymentOptions": "KGxwMAou",
+          "StackType": "production",
+          "Port": 9000
+        }
+      }
+    },
+    "Test-StackDeploymentGroup": {
+      "Type": "AWS::CodeDeploy::DeploymentGroup",
+      "Properties": {
+        "ApplicationName": {
+          "Ref": "TestServiceApplicationStack"
+        },
+        "AutoScalingGroups": [
+          {
+            "Fn::GetAtt": [
+              "Test-Stack",
+              "Outputs.AutoScalingGroup"
+            ]
+          }
+        ],
+        "ServiceRoleArn": "arn:aws:iam::012345678912:role/my-code-deploy-role",
+        "DeploymentConfigName": "CodeDeployDefault.OneAtATime"
+      }
+    }
+  },
+  "Outputs": {
+    "CodeDeployApp": {
+      "Value": {
+        "Ref": "TestServiceApplicationStack"
+      }
+    },
+    "Test-StackDeploymentGroup": {
+      "Value": {
+        "Ref": "Test-StackDeploymentGroup"
+      }
+    }
+  },
+  "Conditions": {}
+}

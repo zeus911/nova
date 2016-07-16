@@ -55,7 +55,12 @@ To begin developing the virtual environment needs to be activated:
     mkvirtualenv nova
     workon nova
     python setup.py develop
-    
+
+## Pre-Release
+
+    python setup.py sdist upload -r pypitest
+    pip install -U --pre -i https://testpypi.python.org/pypi gilt-nova
+
 ## Releasing
 
 One-time Install zest.releaser

@@ -2,65 +2,64 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-import boto3
-from termcolor import colored
+
 from botocore.exceptions import ClientError, WaiterError
+from termcolor import colored
 
 from nova.core import check_latest_version
-from nova.core.stack import create_and_upload_stack_template
 from nova.core.exc import NovaError
 from nova.core.spec.nova_service_loader import NovaServiceLoader
-from nova.core.utils.cfn_waiter import CloudformationWaiter
 
 
 class CreateStack:
 
-    def __init__(self, aws_profile, environment_name, cf_template_out=None):
+    def __init__(self, aws_profile, environment_name, manager_provider,
+                 cf_template_out=None, nova_descriptor_file=None):
         check_latest_version()
+
         print("Creating cloudformation scripts...")
-        service = NovaServiceLoader(environment_name)
-        environment = service.service.get_environment(environment_name)
-        awsprofile = aws_profile or environment.aws_profile
-        session = boto3.session.Session(profile_name=awsprofile, region_name=environment.aws_region)
 
-        cloudformation = session.resource('cloudformation')
-        s3 = session.client('s3')
-        account_id = session.client('iam').list_account_aliases()['AccountAliases'][0]
-        s3_bucket = 'nova-deployment-templates-%s' % account_id
+        self._environment_name = environment_name
+        self._service_manager = NovaServiceLoader(environment_name, nova_descriptor_file)
+        self._aws_manager = manager_provider.aws_manager(
+            aws_profile or self._service_manager.environment.aws_profile,
+            self._service_manager.environment.aws_region
+        )
 
-        create_and_upload_stack_template(s3, s3_bucket, service.service, environment)
-        cloudformation_template = service.service.to_cfn_template(environment, s3_bucket, aws_profile, cf_template_out)
+        self._s3_bucket = 'nova-deployment-templates-%s' % self._aws_manager.account_alias
+        self.cloudformation_template = self._service_manager.service.to_cfn_template(
+            self._service_manager.environment,
+            self._s3_bucket,
+            aws_profile,
+            cf_template_out
+        )
 
+    def create(self):
         try:
-            stack_id = cloudformation.create_stack(
-                StackName=service.service.name,
-                TemplateBody=cloudformation_template,
-                Capabilities=["CAPABILITY_IAM"]
+            self._aws_manager.create_and_upload_stack_template(self._s3_bucket, self._service_manager.service, self._service_manager.environment)
+
+            self._aws_manager.create_stack(
+                self._service_manager.service_name,
+                self.cloudformation_template
             )
-            print(colored(stack_id, color='green'))
 
-            waiter = CloudformationWaiter(cloudformation)
-            print(colored('Cloudformation stack creation in progress. Please check the AWS console!', color='green'))
-            print(colored('Waiting on stack creation...', color='magenta'))
-            waiter.waiter.wait(StackName=service.service.name)
-            print(colored('Stack creation finished!', color='green'))
+            stack = self._aws_manager.get_stack(self._service_manager.service_name)
 
-            stack = cloudformation.Stack(service.service.name)
             if stack.stack_status == "CREATE_COMPLETE":
                 if stack.outputs is not None:
                     for output in stack.outputs:
                         if output.get('OutputKey') == 'CodeDeployApp':
                             code_deploy_app_id = output.get('OutputValue')
                             print(colored("Found code-deploy app: %s" % code_deploy_app_id, color='green'))
-                            service.set_code_deploy_app(environment_name, code_deploy_app_id)
+                            self._service_manager.service.set_code_deploy_app(self._environment_name, code_deploy_app_id)
                             print(colored("Please update nova.yml environment with 'deployment_application_id' manually.", color='yellow'))
                             break
 
-                        for stack in environment.stacks:
+                        for stack in self._service_manager.environment.stacks:
                             if output.get('OutputKey') == stack.name.title() + 'DeploymentGroup':
                                 code_deploy_app_id = output.get('OutputValue')
                                 print(colored("Found code-deploy deployment group for stack '%s': %s" % (stack.name, code_deploy_app_id), color='green'))
-                                service.set_code_deploy_app(environment_name, code_deploy_app_id)
+                                self._service_manager.service.set_code_deploy_app(self._environment_name, code_deploy_app_id)
                                 print(colored("Please update nova.yml environment with 'deployment_application_id' manually.", color='yellow'))
                             else:
                                 print(colored("Unable to find code-deploy deployment group for stack '%s' in the stack output" % stack.name, 'yellow'))
@@ -80,4 +79,3 @@ class CreateStack:
             raise NovaError(str(e))
         except WaiterError as e:
             raise NovaError(str(e))
-

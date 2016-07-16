@@ -1,0 +1,15 @@
+service_name: test-service
+team_name: nova
+port: 80
+healthcheck_url: /healthcheck
+
+environments:
+  - name: test-environment
+    aws_profile: my-profile
+    aws_region: us-east-1
+    deploy_arn: arn:aws:iam::012345678912:role/my-code-deploy-role
+    deployment_bucket: my-bucket
+    stacks:
+      - stack_name: test-stack
+        stack_type: production
+        stack_deploy_config: OneAtATime

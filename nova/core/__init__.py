@@ -2,12 +2,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+
 import sys
-import subprocess
 import pkg_resources
 from six.moves import input
 import six.moves.xmlrpc_client
 from termcolor import colored
+
 from nova.core.exc import NovaError
 
 
@@ -25,11 +26,6 @@ def check_latest_version():
             raise NovaError('There has been a breaking change, please upgrade before continuing!')
     except Exception:
         pass
-
-
-def get_git_revision():
-    git_version = subprocess.check_output(['git', 'describe', '--tags', '--dirty', '--always'])
-    return git_version.decode(sys.stdout.encoding).strip('v').strip()
 
 
 def query_yes_no(question, default="yes"):

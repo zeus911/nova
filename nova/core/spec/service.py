@@ -34,7 +34,7 @@ class Service(object):
             ('logs', logs_list),
             ('environments', [e.yaml() for e in self.environments])
         ])
-        return pyaml.dump(OrderedDict((k,v) for k,v in data.items() if v is not None))
+        return pyaml.dump(OrderedDict((k, v) for k, v in data.items() if v is not None))
 
     def get_environment(self, environment_name):
         environment = next((item for item in self.environments if item.name == environment_name), None)

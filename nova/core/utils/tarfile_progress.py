@@ -25,8 +25,8 @@ class SudoTarInfo(object):
 class TarFile(tarfile.TarFile):
 
     def __init__(self, name=None, mode="r", fileobj=None, format=None,
-                tarinfo=None, dereference=None, ignore_zeros=None, encoding=None,
-                errors=None, pax_headers=None, debug=None, errorlevel=None):
+                 tarinfo=None, dereference=None, ignore_zeros=None,
+                 encoding=None, errors=None, pax_headers=None, debug=None, errorlevel=None):
         self.__progresscallback = None
 
         tarfile.TarFile.__init__(self, name, mode, fileobj, format,
@@ -117,12 +117,12 @@ class FileWrapper(object):
                 self._progress(progress)
                 self._lastprogress = progress
 
-    def read(self, size= -1):
+    def read(self, size=-1):
         data = self._fileobj.read(size)
         self._updateprogress(len(data))
         return data
 
-    def readline(self, size= -1):
+    def readline(self, size=-1):
         data = self._fileobj.readline(size)
         self._updateprogress(len(data))
         return data

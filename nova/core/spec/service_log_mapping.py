@@ -18,7 +18,7 @@ class ServiceLogMapping(object):
             ('group_name', self.group_name),
             ('datetime_format', self.datetime_format)
         ])
-        return OrderedDict((k,v) for k,v in data.items() if v is not None)
+        return OrderedDict((k, v) for k, v in data.items() if v is not None)
 
     @staticmethod
     def load(values):

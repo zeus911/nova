@@ -4,9 +4,15 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 from cement.core.controller import CementBaseController, expose
+
+from nova.core.managers.manager_provider import ManagerProvider
 from nova.core.stash.decrypt import Decrypt
 from nova.core.stash.encrypt import Encrypt
 from nova.core.exc import NovaError
+
+INCORRECT_GET_ARGS_USAGE = "Usage: nova stash get <environment> <key>"
+
+INCORRECT_PUT_ARGS_USAGE = "Usage: nova stash put <environment> <key> <value>"
 
 
 class NovaStashController(CementBaseController):
@@ -33,9 +39,10 @@ class NovaStashController(CementBaseController):
             region = self.app.pargs.region
             bucket = self.app.pargs.bucket
             key = self.app.pargs.stash_args[0]
-            Decrypt(key, profile, region, bucket)
+            manager_provider = ManagerProvider()
+            Decrypt(key, manager_provider, profile, region, bucket)
         else:
-            raise NovaError("Usage: nova stash get <environment> <key>")
+            raise NovaError(INCORRECT_GET_ARGS_USAGE)
 
     @expose(help='Encrypt a service variable')
     def put(self):
@@ -45,6 +52,7 @@ class NovaStashController(CementBaseController):
             bucket = self.app.pargs.bucket
             key = self.app.pargs.stash_args[0]
             value = self.app.pargs.stash_args[1]
-            Encrypt(key, value, profile, region, bucket)
+            manager_provider = ManagerProvider()
+            Encrypt(key, value, manager_provider, profile, region, bucket)
         else:
-            raise NovaError("Usage: nova stash put <environment> <key> <value>")
+            raise NovaError(INCORRECT_PUT_ARGS_USAGE)

@@ -18,12 +18,10 @@ from __future__ import absolute_import
 from __future__ import print_function
 import inspect
 import json
-import traceback
 import warnings
 from collections import OrderedDict
 
 from nova.core.cfn_pyplates import exceptions
-from . import functions
 
 aws_template_format_version = '2010-09-09'
 
@@ -175,7 +173,14 @@ class JSONableDict(OrderedDict):
         completely customize the JSON output if desired.
 
         """
-        return json.dumps(self, *args, **kwargs)
+        return json.dumps(self, cls=BytesEncoder, *args, **kwargs)
+
+
+class BytesEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, bytes):
+            return obj.decode('utf-8')
+        return json.JSONEncoder.default(self, obj)
 
 
 class CloudFormationTemplate(JSONableDict):
@@ -584,62 +589,3 @@ def ec2_tags(tags):
         tags_list.append({'Key': key, 'Value': value})
 
     return tags_list
-
-
-def generate_pyplate(pyplate, options=None):
-    """Generate CloudFormation JSON Template based on a Pyplate
-
-    Arguments:
-      pyplate
-        input pyplate file, can be a path or a file object
-
-      options
-        a mapping of some kind (probably a dict),
-        to be used at this pyplate's options mapping
-
-    Returns the output string of the compiled pyplate
-
-    """
-    try:
-        if not isinstance(pyplate, file):
-            pyplate = open(pyplate)
-        pyplate = _load_pyplate(pyplate, options)
-        cft = _find_cloudformationtemplate(pyplate)
-        output = str(cft)
-    except Exception:
-        print('Error processing the pyplate:')
-        print(traceback.format_exc())
-        return None
-
-    return output
-
-
-def _load_pyplate(pyplate, options_mapping=None):
-    'Load a pyplate file object, and return a dict of its globals'
-    # Inject all the useful stuff into the template namespace
-    exec_namespace = {
-        'options': options_mapping,
-    }
-    for entry in __all__:
-        exec_namespace[entry] = globals().get(entry)
-    for entry in functions.__all__:
-        exec_namespace[entry] = getattr(functions, entry)
-
-    # Do the needful.
-    exec(pyplate, exec_namespace)
-    return exec_namespace
-
-
-def _find_cloudformationtemplate(pyplate):
-    """Find a CloudFormationTemplate in a pyplate
-
-    Goes through a pyplate namespace dict and returns the first
-    CloudFormationTemplate it finds.
-
-    """
-    for key, value in pyplate.items():
-        if isinstance(value, CloudFormationTemplate):
-            return value
-
-    # If we haven't returned something, it's an Error
-    raise exceptions.Error('No CloudFormationTemplate found in pyplate')

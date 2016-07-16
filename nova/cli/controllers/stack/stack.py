@@ -8,6 +8,10 @@ from nova.core.exc import NovaError
 from nova.core.stack.create_stack import CreateStack
 from nova.core.stack.update_stack import UpdateStack
 
+INCORRECT_CREATE_ARGS_USAGE = "You must provide an environment to create"
+
+INCORRECT_UPDATE_ARGS_USAGE = "You must provide an environment to update"
+
 
 class NovaStacksController(CementBaseController):
     class Meta:
@@ -31,15 +35,15 @@ class NovaStacksController(CementBaseController):
         cf_template_out = self.app.pargs.output
         if self.app.pargs.environment:
             profile = self.app.pargs.profile
-            CreateStack(profile, self.app.pargs.environment[0], cf_template_out)
+            CreateStack(profile, self.app.pargs.environment[0], cf_template_out).create()
         else:
-            raise NovaError("You must provide an environment to create")
+            raise NovaError(INCORRECT_CREATE_ARGS_USAGE)
 
     @expose(help='Update NOVA service stack')
     def update(self):
         cf_template_out = self.app.pargs.output
         if self.app.pargs.environment:
             profile = self.app.pargs.profile
-            UpdateStack(profile, self.app.pargs.environment[0], cf_template_out)
+            UpdateStack(profile, self.app.pargs.environment[0], cf_template_out).update()
         else:
-            raise NovaError("You must provide an environment to update")
+            raise NovaError(INCORRECT_UPDATE_ARGS_USAGE)
