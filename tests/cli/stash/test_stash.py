@@ -11,11 +11,11 @@ class NovaStackTestCase(NovaTestCase):
             try:
                 app.run()
             except NovaError as e:
-                self.assertEqual(e.msg, INCORRECT_GET_ARGS_USAGE)
+                self.assertEqual(e.message, INCORRECT_GET_ARGS_USAGE)
 
     def test_stash_put(self):
         with get_test_app(argv=['stash', 'put']) as app:
             try:
                 app.run()
             except NovaError as e:
-                self.assertEqual(e.msg, INCORRECT_PUT_ARGS_USAGE)
+                self.assertEqual(e.message, INCORRECT_PUT_ARGS_USAGE)

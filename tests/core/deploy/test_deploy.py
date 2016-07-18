@@ -44,6 +44,6 @@ class NovaDeployTestCase(NovaTestCase):
                 nova_descriptor_file=nova_descriptor_file
             ).deploy()
         except NovaError as e:
-            self.assertEqual(e.msg, "Environment 'test-environment' does not have 'deployment_application_id' set!")
+            self.assertEqual(e.message, "Environment 'test-environment' does not have 'deployment_application_id' set!")
         else:
             self.fail('NovaError not raised')

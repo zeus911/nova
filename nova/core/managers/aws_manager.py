@@ -207,8 +207,14 @@ class AwsManager(object):
 
         print(colored("Pushing deployment bundle '%s' to S3..." % tmp_file.name, color='green'))
 
-        transfer = S3Transfer(self.s3_client)
-        transfer.upload_file(tmp_file.name, deployment_bucket_name, key, callback=ProgressPercentage(tmp_file.name))
+        try:
+            transfer = S3Transfer(self.s3_client)
+            transfer.upload_file(tmp_file.name, deployment_bucket_name, key, callback=ProgressPercentage(tmp_file.name))
+        except ClientError as e:
+            if 'AccessDenied' in e.message:
+                print(colored("Access denied to upload to '%s/%s'" % (deployment_bucket_name, key), 'red'))
+                raise
+
         os.unlink(tmp_file.name)  # clean up the temp file
 
         print("")  # Need a new-line after transfer progress

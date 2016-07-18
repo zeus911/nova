@@ -8,12 +8,14 @@ from termcolor import colored
 
 class NovaError(Exception):
     """Generic errors."""
-    def __init__(self, msg):
-        Exception.__init__(self)
-        self.msg = msg
+
+    def __init__(self, message):
+        self.message = message
+        # Call the base class constructor with the parameters it needs
+        super(Exception, self).__init__(message)
 
     def __str__(self):
-        return colored(self.msg, color='red')
+        return colored(self.message, color='red')
 
 
 class NovaConfigError(NovaError):

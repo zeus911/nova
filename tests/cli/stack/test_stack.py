@@ -11,11 +11,11 @@ class NovaStackTestCase(NovaTestCase):
             try:
                 app.run()
             except NovaError as e:
-                self.assertEqual(e.msg, INCORRECT_CREATE_ARGS_USAGE)
+                self.assertEqual(e.message, INCORRECT_CREATE_ARGS_USAGE)
 
     def test_stack_update(self):
         with get_test_app(argv=['stack', 'update']) as app:
             try:
                 app.run()
             except NovaError as e:
-                self.assertEqual(e.msg, INCORRECT_UPDATE_ARGS_USAGE)
+                self.assertEqual(e.message, INCORRECT_UPDATE_ARGS_USAGE)
