@@ -51,7 +51,7 @@ class Environment(object):
             templates_used[s.name] = s.get_template_used(service, template_bucket)
         return templates_used
 
-    def to_cfn_template(self, service, template_bucket, cft, aws_profile):
+    def to_cfn_template(self, service, template_bucket, cft, aws_manager):
         extra_resources = self.__read_extra_resources()
         if extra_resources is not None:
             for r in extra_resources:
@@ -62,7 +62,7 @@ class Environment(object):
         cft.outputs.add(Output('CodeDeployApp', ref(codedeploy_app_name)))
 
         for stack in self.stacks:
-            stack.to_cfn_template(service, self, template_bucket, codedeploy_app_name, cft, aws_profile)
+            stack.to_cfn_template(service, self, template_bucket, codedeploy_app_name, cft, aws_manager)
 
     def __read_extra_resources(self):
         if self.resources:

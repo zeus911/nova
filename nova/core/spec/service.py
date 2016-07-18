@@ -46,10 +46,10 @@ class Service(object):
     def set_code_deploy_app(self, environment_name, code_deploy_app_id):
         self.get_environment(environment_name).deployment_application_id = code_deploy_app_id
 
-    def to_cfn_template(self, environment, template_bucket, aws_profile, cf_template_out=None):
+    def to_cfn_template(self, environment, template_bucket, aws_manager, cf_template_out=None):
         description = "%s %s %s stack" % (self.team_name, self.name, environment.name)
         cfn = CloudFormationTemplate(description=description)
-        environment.to_cfn_template(self, template_bucket, cfn, aws_profile)
+        environment.to_cfn_template(self, template_bucket, cfn, aws_manager)
         json_cfn = cfn.json
 
         if cf_template_out is not None:

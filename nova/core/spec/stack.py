@@ -6,6 +6,8 @@ import base64
 import pickle
 from collections import OrderedDict
 import boto3
+
+from nova.core import NovaError
 from nova.core.cfn_pyplates.core import Resource, Output
 from nova.core.cfn_pyplates.functions import ref, get_att
 
@@ -50,21 +52,21 @@ class Stack(object):
         data.update(self.extra_parameters)
         return OrderedDict((k, v) for k, v in data.items() if v is not None)
 
-    def to_cfn_template(self, service, environment, template_bucket, codedeploy_app_name, cft, aws_profile):
-        self.__add_stack(cft, service, environment, template_bucket, aws_profile)
+    def to_cfn_template(self, service, environment, template_bucket, codedeploy_app_name, cft, aws_manager):
+        self.__add_stack(cft, service, template_bucket, aws_manager)
         self.__add_deployment_group(cft, codedeploy_app_name, environment.deploy_arn)
 
-    def __add_stack(self, cft, service, environment, template_bucket, aws_profile):
+    def __add_stack(self, cft, service, template_bucket, aws_manager):
         other_params = self.extra_parameters.copy()
 
         if 'DNS' in other_params and other_params.get('HostedZoneName') is None:
             record = other_params.get('DNS')
-            awsprofile = aws_profile or environment.aws_profile
-            session = boto3.session.Session(profile_name=awsprofile, region_name=environment.aws_region)
-            route53 = session.client('route53')
-            hostedzones = [z.get('Name') for z in route53.list_hosted_zones_by_name().get('HostedZones')]
+            hostedzones = aws_manager.get_hosted_zone_names()
             hostedzone = next((z for z in hostedzones if (z in record) or (z[:len(z) - 1] in record)), None)
-            other_params['HostedZoneName'] = hostedzone
+            if hostedzone is not None:
+                other_params['HostedZoneName'] = hostedzone
+            else:
+                raise NovaError("Unable to determine 'HostedZoneName' from DNS record '%s'" % record)
 
         other_params.update([
             ('StackType', self.stack_type),

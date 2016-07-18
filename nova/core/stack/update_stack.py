@@ -34,7 +34,7 @@ class UpdateStack:
         self.cloudformation_template = self._service_manager.service.to_cfn_template(
             self._service_manager.environment,
             self._s3_bucket,
-            aws_profile,
+            self._aws_manager,
             cf_template_out
         )
 

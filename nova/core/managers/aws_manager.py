@@ -37,6 +37,7 @@ class AwsManager(object):
         self._code_deploy_client = None
         self._iam_client = None
         self._kms_client = None
+        self._route53_client = None
 
     @property
     def account_alias(self):
@@ -79,6 +80,16 @@ class AwsManager(object):
         if self._kms_client is None:
             self._kms_client = self._session.client('kms')
         return self._kms_client
+
+    @property
+    def route53_client(self):
+        if self._route53_client is None:
+            self._route53_client = self._session.client('route53')
+        return self._route53_client
+
+    def get_hosted_zone_names(self):
+        route53 = self.route53_client()
+        return [z.get('Name') for z in route53.list_hosted_zones_by_name().get('HostedZones')]
 
     def create_bucket(self, deployment_bucket_name, msg):
         existing_bucket = None
