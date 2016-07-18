@@ -15,11 +15,8 @@ from nova.core.exc import NovaError
 
 class Decrypt:
 
-    def __init__(self, stash_key, manager_provider, aws_profile=None, aws_region=None, aws_bucket=None, context=None):
+    def __init__(self, stash_key, manager_provider, aws_profile=None, aws_region=None, aws_bucket=None):
         check_latest_version()
-
-        if not context:
-            context = {}
 
         self._aws_manager = manager_provider.aws_manager(aws_profile, aws_region or 'us-east-1')
 
@@ -37,7 +34,7 @@ class Decrypt:
             contents = existing_stash['Body'].read()
             metadata = existing_stash['Metadata']
             encryption_key = metadata['encryption-key']
-            kms_response = self._aws_manager.kms_decrypt(b64decode(encryption_key), context)
+            kms_response = self._aws_manager.kms_decrypt(b64decode(encryption_key), {})
 
             key = kms_response['Plaintext'][:32]
             hmac_key = kms_response['Plaintext'][32:]

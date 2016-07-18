@@ -17,11 +17,8 @@ from nova.core.exc import NovaError
 
 class Encrypt:
 
-    def __init__(self, stash_key, value, manager_provider, aws_profile=None, aws_region=None, aws_bucket=None, kms_key='alias/novastash', context=None):
+    def __init__(self, stash_key, value, manager_provider, aws_profile=None, aws_region=None, aws_bucket=None, kms_key='alias/novastash'):
         check_latest_version()
-
-        if not context:
-            context = {}
 
         self._aws_manager = manager_provider.aws_manager(aws_profile, aws_region or 'us-east-1')
 
@@ -37,7 +34,7 @@ class Encrypt:
 
         # generate a a 64 byte key.
         # Half will be for data encryption, the other half for HMAC
-        kms_response = self._aws_manager.kms_generate_data_key(kms_key, context)
+        kms_response = self._aws_manager.kms_generate_data_key(kms_key, {})
 
         data_key = tobytes(kms_response['Plaintext'][:32])
         hmac_key = tobytes(kms_response['Plaintext'][32:])

@@ -25,6 +25,7 @@ class NovaStashController(CementBaseController):
             (['-p', '--profile'], dict(help='AWS profile')),
             (['-r', '--region'], dict(help='AWS region')),
             (['-b', '--bucket'], dict(help='AWS bucket')),
+            (['-k', '--key'], dict(help="AWS KMS Encryption Key Alias. (default is 'novastash')")),
             (['stash_args'], dict(action='store', nargs='*')),
         ]
 
@@ -40,7 +41,13 @@ class NovaStashController(CementBaseController):
             bucket = self.app.pargs.bucket
             key = self.app.pargs.stash_args[0]
             manager_provider = ManagerProvider()
-            Decrypt(key, manager_provider, profile, region, bucket)
+            Decrypt(
+                stash_key = key,
+                manager_provider=manager_provider,
+                aws_profile=profile,
+                aws_region=region,
+                aws_bucket=bucket
+            )
         else:
             raise NovaError(INCORRECT_GET_ARGS_USAGE)
 
@@ -50,9 +57,18 @@ class NovaStashController(CementBaseController):
             profile = self.app.pargs.profile
             region = self.app.pargs.region
             bucket = self.app.pargs.bucket
+            kms_key_alias = self.app.pargs.key or 'novastash'
             key = self.app.pargs.stash_args[0]
             value = self.app.pargs.stash_args[1]
             manager_provider = ManagerProvider()
-            Encrypt(key, value, manager_provider, profile, region, bucket)
+            Encrypt(
+                stash_key = key,
+                value = value,
+                manager_provider = manager_provider,
+                aws_profile = profile,
+                aws_region = region,
+                aws_bucket = bucket,
+                kms_key = "alias/%s" % kms_key_alias
+            )
         else:
             raise NovaError(INCORRECT_PUT_ARGS_USAGE)
