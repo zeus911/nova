@@ -9,7 +9,6 @@ GitPython
 Jinja2
 ordereddict
 pyaml
-pycryptodome>=3.4
+pycrypto
 six>=1.10.0
 termcolor
-pytest>=2.7.3
