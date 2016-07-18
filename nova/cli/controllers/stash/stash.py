@@ -42,7 +42,7 @@ class NovaStashController(CementBaseController):
             key = self.app.pargs.stash_args[0]
             manager_provider = ManagerProvider()
             Decrypt(
-                stash_key = key,
+                stash_key=key,
                 manager_provider=manager_provider,
                 aws_profile=profile,
                 aws_region=region,
@@ -62,13 +62,13 @@ class NovaStashController(CementBaseController):
             value = self.app.pargs.stash_args[1]
             manager_provider = ManagerProvider()
             Encrypt(
-                stash_key = key,
-                value = value,
-                manager_provider = manager_provider,
-                aws_profile = profile,
-                aws_region = region,
-                aws_bucket = bucket,
-                kms_key = "alias/%s" % kms_key_alias
+                stash_key=key,
+                value=value,
+                manager_provider=manager_provider,
+                aws_profile=profile,
+                aws_region=region,
+                aws_bucket=bucket,
+                kms_key="alias/%s" % kms_key_alias
             )
         else:
             raise NovaError(INCORRECT_PUT_ARGS_USAGE)

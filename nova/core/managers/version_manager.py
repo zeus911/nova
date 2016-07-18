@@ -16,7 +16,8 @@ class VersionManager(object):
         if self._current_version is None:
             if forced_version is None:
                 git_version = subprocess.check_output(['git', 'describe', '--tags', '--dirty', '--always'])
-                self._current_version = git_version.decode(sys.stdout.encoding).strip('v').strip()
+                console_encoding = sys.stdout.encoding or 'utf-8'
+                self._current_version = git_version.decode(console_encoding).strip('v').strip()
             else:
                 self._current_version = forced_version
         return self._current_version

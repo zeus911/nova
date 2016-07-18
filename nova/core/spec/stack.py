@@ -2,10 +2,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+
 import base64
 import pickle
 from collections import OrderedDict
-import boto3
 
 from nova.core import NovaError
 from nova.core.cfn_pyplates.core import Resource, Output
