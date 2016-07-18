@@ -16,10 +16,10 @@ class NovaDeployTestCase(NovaTestCase):
         nova_descriptor_file = '%s/nova.yml' % os.path.dirname(os.path.realpath(__file__))
         manager_provider = TestManagerProvider()
         DeployStack(
-            'test-environment',
-            'test-stack',
-            None,
-            manager_provider,
+            environment_name='test-environment',
+            stack_name='test-stack',
+            aws_profile=None,
+            manager_provider=manager_provider,
             nova_descriptor_file=nova_descriptor_file
         ).deploy()
 
@@ -37,10 +37,10 @@ class NovaDeployTestCase(NovaTestCase):
             nova_descriptor_file = '%s/nova_no_app_id.yml' % os.path.dirname(os.path.realpath(__file__))
             manager_provider = TestManagerProvider()
             DeployStack(
-                'test-environment',
-                'test-stack',
-                None,
-                manager_provider,
+                environment_name='test-environment',
+                stack_name='test-stack',
+                aws_profile=None,
+                manager_provider=manager_provider,
                 nova_descriptor_file=nova_descriptor_file
             ).deploy()
         except NovaError as e:

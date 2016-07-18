@@ -3,28 +3,30 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import atexit
 import os
+import yaml
+import atexit
 import shutil
 import tempfile
-from distutils import dir_util
-
-import yaml
 from jinja2 import Template
 from termcolor import colored
+from distutils import dir_util
+from os.path import isfile, join
 
 from nova.core import templates, check_latest_version
 from nova.core.deploy import LOAD_DOCKER_CONTAINER, START_DOCKER_CONTAINER, VALIDATE
 from nova.core.exc import NovaError
+from nova.core.spec.custom_scripts import CustomScripts
 from nova.core.spec.nova_service_loader import NovaServiceLoader
 
 
 class DeployStack:
 
     def __init__(self, environment_name, stack_name, aws_profile, manager_provider,
-                 version=None, nova_descriptor_file=None):
+                 version=None, deploy=True, nova_descriptor_file=None):
         self._environment_name = environment_name
         self._stack_name = stack_name
+        self._deploy = deploy
         self._version_manager = manager_provider.version_manager()
         self._docker_manager = manager_provider.docker_manager()
         self._service_manager = NovaServiceLoader(environment_name, nova_descriptor_file)
@@ -40,6 +42,7 @@ class DeployStack:
                 self._environment_name, self._stack.name))
 
         self._nova_deploy_dir = None
+        self._custom_scripts = CustomScripts()
 
     def deploy(self):
         atexit.register(self.__cleanup)
@@ -63,14 +66,17 @@ class DeployStack:
 
         print(colored("Triggering code-deploy...", color='cyan'))
 
-        self._aws_manager.create_deployment(
-            self._code_deploy_app,
-            self._stack.deployment_group,
-            revision_etag,
-            deployment_bucket_name,
-            key
-        )
-        print(colored('CodeDeploy deployment in progress. Please check the AWS console!', color='green'))
+        if self._deploy:
+            self._aws_manager.create_deployment(
+                self._code_deploy_app,
+                self._stack.deployment_group,
+                revision_etag,
+                deployment_bucket_name,
+                key
+            )
+            print(colored('CodeDeploy deployment in progress. Please check the AWS console!', color='green'))
+        else:
+            print(colored('Deployment not triggered, S3 revision uploaded and registered with CodeDeploy.', color='yellow'))
 
     def __build_upload_revision(self, deployment_bucket_name, key):
         print(colored("No existing revision found, creating...", color='magenta'))
@@ -89,9 +95,20 @@ class DeployStack:
         return revision_etag
 
     def __create_nova_deploy_dirs(self):
-        if os.path.exists('nova-deploy'):
-            print(colored("Including found service deployment scripts", color='green'))
-            dir_util.copy_tree('nova-deploy', self._nova_deploy_dir)
+        if os.path.exists('nova-scripts'):
+            print(colored("Including found custom service deployment scripts", color='green'))
+            self._custom_scripts.app_stop_scripts = self.__copy_custom_scripts('nova-scripts/ApplicationStop')
+            self._custom_scripts.before_install_scripts = self.__copy_custom_scripts('nova-scripts/BeforeInstall')
+            self._custom_scripts.after_install_scripts = self.__copy_custom_scripts('nova-scripts/AfterInstall')
+            self._custom_scripts.app_start_scripts = self.__copy_custom_scripts('nova-scripts/ApplicationStart')
+            self._custom_scripts.validate_scripts = self.__copy_custom_scripts('nova-scripts/ValidateService')
+
+    def __copy_custom_scripts(self, path_dir):
+        if os.path.exists(path_dir):
+            dir_util.copy_tree(path_dir, self._nova_deploy_dir)
+            return [f for f in os.listdir(path_dir) if isfile(join(path_dir, f))]
+        else:
+            return []
 
     def __create_app_spec(self):
         os.mkdir(os.path.join(self._nova_deploy_dir, 'env-vars'))
@@ -106,23 +123,27 @@ class DeployStack:
             os.mkdir(os.path.join(self._nova_deploy_dir, 'env-vars/%s' % stack.stack_type))
             files.extend(self.__render_stack_files(stack))
 
-        app_stop_scripts = [
-            {'location': 'cleanup_space.sh', 'timeout': 300}
-        ]
+        app_stop_scripts = [{'location': 'cleanup_space.sh', 'timeout': 300}]
+        app_stop_scripts.extend(self._custom_scripts.app_stop_scripts_for_app_spec)
+
         before_install_scripts = [
             {'location': 'deregister_from_elb.sh'},
             {'location': 'kill_docker_container.sh', 'timeout': 300}
         ]
-        after_install_scripts = [
-            {'location': 'load_docker_container.sh'}
-        ]
+        before_install_scripts.extend(self._custom_scripts.before_install_scripts_for_app_spec)
+
+        after_install_scripts = [{'location': 'load_docker_container.sh'}]
+        after_install_scripts.extend(self._custom_scripts.after_install_scripts_for_app_spec)
+
         app_start_scripts = [
             {'location': 'start_docker_container.sh', 'timeout': 300},
             {'location': 'register_with_elb.sh'}
         ]
-        validate_scripts = [
-            {'location': 'validate_service.sh'}
-        ]
+        app_start_scripts.extend(self._custom_scripts.app_start_scripts_for_app_spec)
+
+        validate_scripts = [{'location': 'validate_service.sh'}]
+        validate_scripts.extend(self._custom_scripts.validate_scripts_for_app_spec)
+
         app_spec = {
             'version': 0.0,
             'os': 'linux',
