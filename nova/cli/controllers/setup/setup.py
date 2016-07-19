@@ -21,8 +21,14 @@ class NovaSetupController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
+        nova_install_dir = '/opt/nova'
+
         print("installing NOVA instance scripts, please wait...")
         instance_scripts_path = os.path.join(templates.__path__[0], 'instance-scripts')
+
+        if not os.path.exists(nova_install_dir):
+            os.makedirs(nova_install_dir)
+
         for f in os.listdir(instance_scripts_path):
             file_name = os.path.join(instance_scripts_path, f)
-            shutil.copy(file_name, '/opt/nova/')
+            shutil.copy(file_name, nova_install_dir)

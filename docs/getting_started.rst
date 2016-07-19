@@ -61,4 +61,4 @@ Your EC2 instances must at a minimum have the following:
 
 ::
 
-    nova setup
+    sudo nova setup
