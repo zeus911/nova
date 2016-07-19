@@ -42,7 +42,7 @@ create this as a source controlled repository, that way changes are tracked.
 - You have the `AWS CLI <http://docs.aws.amazon.com/cli/latest/userguide/installing.html>`_ installed and configured.
 - Your AWS accounts must have an `account alias <http://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html>`_ setup in IAM.
 - Your service's Docker image must end with the format ``<service name>:<version>``, NOVA searches your local Docker images for this to export.
-- CodeDeploy in your AWS account must have the deployment configurations you specify in ``nova.yml`` already setup.
+- CodeDeploy in your AWS account must have the `deployment configurations <http://docs.aws.amazon.com/codedeploy/latest/userguide/how-to-create-deployment-configuration.html>`_ you specify in ``nova.yml`` already setup.
 
 
 **Instance Prerequisites**
@@ -61,4 +61,24 @@ Your EC2 instances must at a minimum have the following:
 
 ::
 
-    sudo nova setup
+    nova setup
+
+Recommended Cloudformation Init Script:
+
+::
+
+    "UserData": {
+      "Fn::Base64": {
+        "Fn::Join": [
+          "",
+          [
+            "#!/bin/bash -ex\n",
+            "pip install -U gilt-nova\n",
+            "/usr/local/bin/nova setup\n",
+            "bash -ex /opt/nova/nova-env-setup.sh ", { "Ref" : "AWS::StackName" }, " ", { "Ref": "StackType" }, "\n",
+            "bash -ex /opt/nova/nova-logs-setup.sh ", { "Ref": "ApplicationName" }, " ", { "Ref": "LogsList" }, "\n"
+          ]
+        ]
+      }
+    }
+
