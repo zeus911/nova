@@ -88,8 +88,7 @@ class AwsManager(object):
         return self._route53_client
 
     def get_hosted_zone_names(self):
-        route53 = self.route53_client()
-        return [z.get('Name') for z in route53.list_hosted_zones_by_name().get('HostedZones')]
+        return [z.get('Name') for z in self.route53_client.list_hosted_zones_by_name().get('HostedZones')]
 
     def create_bucket(self, deployment_bucket_name, msg):
         existing_bucket = None
