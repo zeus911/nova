@@ -52,8 +52,8 @@ See [Troubleshooting Install](TROUBLESHOOTING_INSTALL.md)
 
 To begin developing the virtual environment needs to be activated:
 
-    mkvirtualenv nova
-    workon nova
+    
+    pyenv virtualenv 3.5.1 nova
     python setup.py develop
 
 ## Pre-Release
