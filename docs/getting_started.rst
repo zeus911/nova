@@ -56,4 +56,10 @@ Your EC2 instances must at a minimum have the following:
     - CloudWatch Logs Agent (NOVA will configure it)
     - CodeDeploy agent
     - gilt-nova
+    - git
 
+- Your instance has the NOVA Tool instance-scripts deployed locally to ``/opt/nova``.
+
+::
+
+    

@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+
+import os
+import base64
+import pickle
+import boto.utils
+import logging
+import sys
+import textwrap
+
+from jinja2 import Template
+
+AWSLOGS_CONFIG_TEMPLATE = textwrap.dedent("""
+    [general]
+    state_file = /var/awslogs/state/agent-state
+    buffer_duration = 5000
+    initial_position = start_of_file
+    encoding = utf-8
+    {% for log_mapping in observed_log_files %}
+    [{{log_mapping['file']}}]
+    datetime_format = {{log_mapping['datetime_format']}}
+    multi_line_start_pattern = {{log_mapping['datetime_format']}}
+    file = {{log_mapping['file']}}
+    log_group_name = {{log_mapping['group_name']}}
+    log_stream_name = {{instance_id}}
+    {% endfor %}
+""")
+
+
+def render_template(template, environment):
+    """
+    Render a template with given params
+    :param template: Jinja2 template string
+    :param environment: dict of vars to render in template
+    :return: rendered template string
+    """
+    template = Template(template, trim_blocks=True)
+    return str(template.render(environment)).strip()
+
+
+def write_file(path, content):
+    with open(path, 'w') as file:
+        file.write(content)
+
+
+def main(pickled_logs):
+    logging.info('Configuring Cloudwatch Logs Agent')
+
+    identity = boto.utils.get_instance_identity()['document']
+    logs_str = base64.b64decode(pickled_logs)
+    observed_log_files = pickle.loads(logs_str)
+
+    environment = {
+        'observed_log_files': observed_log_files,
+        'region': identity['region'],
+        'account_id': identity['accountId'],
+        'instance_id': identity['instanceId']
+    }
+
+    try:
+        write_file('/tmp/awslogs.conf', render_template(AWSLOGS_CONFIG_TEMPLATE, environment))
+        os.system('sudo mv /tmp/awslogs.conf /var/awslogs/etc/awslogs.conf')
+
+        logging.info('Successfully configured Cloudwatch Logs Agent')
+    except Exception as e:
+        logging.error('Failed to configure Cloudwatch Logs Agent')
+        logging.exception(e)
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main(sys.argv[1])
