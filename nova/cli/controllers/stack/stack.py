@@ -5,6 +5,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from cement.core.controller import CementBaseController, expose
 from nova.core.exc import NovaError
+from nova.core.managers.manager_provider import ManagerProvider
 from nova.core.stack.create_stack import CreateStack
 from nova.core.stack.update_stack import UpdateStack
 
@@ -35,7 +36,12 @@ class NovaStacksController(CementBaseController):
         cf_template_out = self.app.pargs.output
         if self.app.pargs.environment:
             profile = self.app.pargs.profile
-            CreateStack(profile, self.app.pargs.environment[0], cf_template_out).create()
+            CreateStack(
+                aws_profile=profile,
+                environment_name=self.app.pargs.environment[0],
+                manager_provider=ManagerProvider(),
+                cf_template_out=cf_template_out
+            ).create()
         else:
             raise NovaError(INCORRECT_CREATE_ARGS_USAGE)
 
@@ -44,6 +50,11 @@ class NovaStacksController(CementBaseController):
         cf_template_out = self.app.pargs.output
         if self.app.pargs.environment:
             profile = self.app.pargs.profile
-            UpdateStack(profile, self.app.pargs.environment[0], cf_template_out).update()
+            UpdateStack(
+                aws_profile=profile,
+                environment_name=self.app.pargs.environment[0],
+                manager_provider=ManagerProvider(),
+                cf_template_out=cf_template_out
+            ).update()
         else:
             raise NovaError(INCORRECT_UPDATE_ARGS_USAGE)
