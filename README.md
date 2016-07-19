@@ -13,7 +13,7 @@ The NOVA cli application is a thin wrapper around the Amazon Web Services API to
 
 ## Requirements & Assumptions
 
-- Python 2.7
+- Python 2.7+
 - [AWS Command Line Interface](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) is already setup.
 - Docker is installed and running locally.
 
