@@ -6,19 +6,16 @@
 gilt-nova
 =========
 
-Contents:
+Contents
+########
 
 .. toctree::
    :maxdepth: 2
+   :numbered:
+   :titlesonly:
+   :glob:
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   *
 
 Overview
 ########
