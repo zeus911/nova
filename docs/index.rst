@@ -16,6 +16,7 @@ Contents
    :glob:
 
    *
+   commands/*
 
 Overview
 ########
