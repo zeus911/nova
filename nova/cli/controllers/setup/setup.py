@@ -32,3 +32,9 @@ class NovaSetupController(CementBaseController):
         for f in os.listdir(instance_scripts_path):
             file_name = os.path.join(instance_scripts_path, f)
             shutil.copy(file_name, nova_install_dir)
+
+        # This is a workaround so our tests don't see this as actual Nova Python source...
+        os.rename(
+            os.path.join(instance_scripts_path, 'configure-cloudwatch-logs-agent.py.txt'),
+            os.path.join(instance_scripts_path, 'configure-cloudwatch-logs-agent.py')
+        )
