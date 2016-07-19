@@ -15,7 +15,8 @@ Contents
    :titlesonly:
    :glob:
 
-   *
+   getting_started
+   configuration
    commands/*
 
 Overview
