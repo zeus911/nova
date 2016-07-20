@@ -12,3 +12,4 @@ pyaml
 pycrypto
 six>=1.10.0
 termcolor
+flask

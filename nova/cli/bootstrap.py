@@ -9,6 +9,7 @@ from __future__ import unicode_literals
 
 from cement.core import handler
 from nova.cli.controllers.base import NovaBaseController
+from nova.cli.controllers.new.new import NovaNewController
 from nova.cli.controllers.setup.setup import NovaSetupController
 from nova.cli.controllers.update.update import NovaUpdateController
 from nova.cli.controllers.deploy.deploy import NovaDeploymentsController
@@ -24,6 +25,7 @@ def load(app):
     """
     handler.register(NovaBaseController)
     handler.register(NovaSetupController)
+    handler.register(NovaNewController)
     handler.register(NovaUpdateController)
     handler.register(NovaDeploymentsController)
     handler.register(NovaStacksController)
