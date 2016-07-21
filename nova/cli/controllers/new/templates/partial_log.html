@@ -1,0 +1,32 @@
+<form class="form-horizontal">
+    <fieldset>
+        <legend>New Log:</legend>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">File to push to Cloudwatch Logs</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control input-lg" id="log_file" placeholder="/var/log/messages">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Cloudwatch Log Group Name</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control input-lg" id="group_name" placeholder="my-service-syslog">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Format of Logfile DateTime</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control input-lg" id="datetime_format" placeholder="'%Y-%m-%d %H:%M:%S'">
+            </div>
+        </div>
+
+
+
+        <div class="form-group">
+            <div class="col-sm-offset-6 col-sm-10">
+                <button type="submit" class="btn btn-default">Add Log File</button>
+            </div>
+        </div>
+    </fieldset>
+</form>
