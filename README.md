@@ -57,6 +57,8 @@ To begin developing the virtual environment needs to be activated:
 
     
     pyenv virtualenv 3.5.1 nova
+    pyenv activate nova
+	pip install -r requirements.txt
     python setup.py develop
 
 ## Pre-Release
