@@ -18,7 +18,7 @@ def green(message):
 class UpdateStack:
 
     def __init__(self, aws_profile, environment_name, manager_provider,
-                 cf_template_out=None, nova_descriptor_file=None):
+                 cf_template_out=None, nova_descriptor_file=None, include_docker=True):
         check_latest_version()
 
         print(colored("Creating cloudformation scripts...", color='cyan'))
@@ -35,7 +35,8 @@ class UpdateStack:
             self._service_manager.environment,
             self._s3_bucket,
             self._aws_manager,
-            cf_template_out
+            cf_template_out,
+            include_docker
         )
 
     def update(self):

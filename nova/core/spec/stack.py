@@ -52,11 +52,11 @@ class Stack(object):
         data.update(self.extra_parameters)
         return OrderedDict((k, v) for k, v in data.items() if v is not None)
 
-    def to_cfn_template(self, service, environment, template_bucket, codedeploy_app_name, cft, aws_manager):
-        self.__add_stack(cft, service, template_bucket, aws_manager)
+    def to_cfn_template(self, service, environment, template_bucket, codedeploy_app_name, cft, aws_manager, include_docker=True):
+        self.__add_stack(cft, service, template_bucket, aws_manager, include_docker)
         self.__add_deployment_group(cft, codedeploy_app_name, environment.deploy_arn)
 
-    def __add_stack(self, cft, service, template_bucket, aws_manager):
+    def __add_stack(self, cft, service, template_bucket, aws_manager, include_docker=True):
         other_params = self.extra_parameters.copy()
 
         if 'DNS' in other_params and other_params.get('HostedZoneName') is None:
@@ -74,12 +74,17 @@ class Stack(object):
             ('ApplicationName', service.name),
             ('TeamName', service.team_name),
             ('HealthcheckUrl', service.healthcheck_url),
-            ('LogsList', self.serialize_logs_settings(service.logs)),
-            ('DockerDeploymentOptions', self.pickle_encode(self.deployment_options)),
-            ('DockerDeploymentVariables', self.pickle_encode(self.deployment_variables)),
-            ('DockerDeploymentVolumes', self.pickle_encode(self.deployment_volumes)),
-            ('DockerDeploymentArguments', self.pickle_encode(self.deployment_arguments))
+            ('LogsList', self.serialize_logs_settings(service.logs))
         ])
+
+        if include_docker:
+            other_params.update([
+                ('DockerDeploymentOptions', self.pickle_encode(self.deployment_options)),
+                ('DockerDeploymentVariables', self.pickle_encode(self.deployment_variables)),
+                ('DockerDeploymentVolumes', self.pickle_encode(self.deployment_volumes)),
+                ('DockerDeploymentArguments', self.pickle_encode(self.deployment_arguments))
+            ])
+
         parameters = {
             'TemplateURL': self.template_url_to_use(service, template_bucket),
             'TimeoutInMinutes': 60,

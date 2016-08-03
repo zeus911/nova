@@ -14,7 +14,7 @@ from nova.core.spec.nova_service_loader import NovaServiceLoader
 class CreateStack:
 
     def __init__(self, aws_profile, environment_name, manager_provider,
-                 cf_template_out=None, nova_descriptor_file=None):
+                 cf_template_out=None, nova_descriptor_file=None, include_docker=True):
         check_latest_version()
 
         print("Creating cloudformation scripts...")
@@ -31,7 +31,8 @@ class CreateStack:
             self._service_manager.environment,
             self._s3_bucket,
             self._aws_manager,
-            cf_template_out
+            cf_template_out,
+            include_docker
         )
 
     def create(self):
