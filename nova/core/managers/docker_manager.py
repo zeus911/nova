@@ -32,7 +32,7 @@ class DockerManager(object):
         return self.docker_client.images()
 
     def find_image(self, looking_for_tag):
-        matching_images = [d for d in self.images() if d["RepoTags"][0].endswith(looking_for_tag)]
+        matching_images = [d for d in self.docker_client.images() if d['RepoTags'] is not None and d['RepoTags'][0].endswith(looking_for_tag)]
         if not len(matching_images) == 1:
             raise NovaError("Could not find a docker image with a tag for: '%s'" % looking_for_tag)
         else:
