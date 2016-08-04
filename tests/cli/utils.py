@@ -42,26 +42,10 @@ class TestManagerProvider(object):
         patcher = mock.patch('nova.core.managers.aws_manager.AwsManager')
         self.mock_aws_manager = patcher.start()
         type(self.mock_aws_manager).account_alias = mock.PropertyMock(return_value='test-account')
-        self.mock_aws_manager.cloudformation = mock.MagicMock()
-        self.mock_aws_manager.cloudformation_client = mock.MagicMock()
-        self.mock_aws_manager.s3_client = mock.MagicMock()
-        self.mock_aws_manager.code_deploy_client = mock.MagicMock()
-        self.mock_aws_manager.iam_client = mock.MagicMock()
-        self.mock_aws_manager.kms_client = mock.MagicMock()
-        self.mock_aws_manager.create_bucket = mock.MagicMock()
-        self.mock_aws_manager.s3_put = mock.MagicMock()
-        self.mock_aws_manager.s3_get = mock.MagicMock(return_value=STASHED_TEST)
-        self.mock_aws_manager.s3_head = mock.MagicMock(return_value=None)
-        self.mock_aws_manager.create_stack = mock.MagicMock()
-        get_stack_result = mock.MagicMock()
-        type(get_stack_result).stack_status = mock.PropertyMock(return_value="CREATE_COMPLETE")
-        self.mock_aws_manager.get_stack = get_stack_result
-        self.mock_aws_manager.update_stack = mock.MagicMock()
-        self.mock_aws_manager.create_deployment = mock.MagicMock()
-        self.mock_aws_manager.push_revision = mock.MagicMock()
-        self.mock_aws_manager.kms_generate_data_key = mock.MagicMock(return_value=KMS_GENERATED_KEY_TEST)
-        self.mock_aws_manager.kms_key_exists = mock.MagicMock()
-        self.mock_aws_manager.kms_decrypt = mock.MagicMock(return_value=DECRYPT_TEST_RESULT)
+        self.mock_aws_manager.s3_get.return_value = STASHED_TEST
+        self.mock_aws_manager.s3_head.return_value = None
+        self.mock_aws_manager.kms_generate_data_key.return_value = KMS_GENERATED_KEY_TEST
+        self.mock_aws_manager.kms_decrypt.return_value = DECRYPT_TEST_RESULT
 
         self.mock_docker_manager = mock.MagicMock(name='docker_manager')
 

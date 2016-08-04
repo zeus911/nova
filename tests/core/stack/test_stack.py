@@ -1,8 +1,10 @@
-import os
 import json
+import os
+
 from nova.core.stack.create_stack import CreateStack
 from nova.core.stack.update_stack import UpdateStack
 from tests.cli.utils import NovaTestCase, TestManagerProvider
+from tests.core import StackResult
 
 try:
     import mock
@@ -51,9 +53,3 @@ class NovaStackTestCase(NovaTestCase):
 
         actual_cf_template = json.loads(update_stack.cloudformation_template)
         #self.assertDictContainsSubset(actual_cf_template, expected_template)
-
-
-class StackResult(object):
-    def __init__(self, status):
-        self.stack_status = status
-        self.outputs = None

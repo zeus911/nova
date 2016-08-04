@@ -21,6 +21,7 @@ class NovaStacksController(CementBaseController):
         stacked_on = 'base'
         stacked_type = 'nested'
         arguments = [
+            (['-f', '--file'], dict(help='Specify the nova service descriptor file to use.')),
             (['-p', '--profile'], dict(help='Override nova.yml AWS profile')),
             (['-o', '--output'], dict(help='Specify a file to output the template to.')),
             (['--no-docker-args'], dict(
@@ -40,6 +41,7 @@ class NovaStacksController(CementBaseController):
     @expose(help='Create NOVA service stack')
     def create(self):
         cf_template_out = self.app.pargs.output
+        nova_descriptor_file = self.app.pargs.file
         include_docker = self.app.pargs.include_docker
         if self.app.pargs.environment:
             profile = self.app.pargs.profile
@@ -48,6 +50,7 @@ class NovaStacksController(CementBaseController):
                 environment_name=self.app.pargs.environment[0],
                 manager_provider=ManagerProvider(),
                 cf_template_out=cf_template_out,
+                nova_descriptor_file=nova_descriptor_file,
                 include_docker=include_docker
             ).create()
         else:
@@ -56,6 +59,7 @@ class NovaStacksController(CementBaseController):
     @expose(help='Update NOVA service stack')
     def update(self):
         cf_template_out = self.app.pargs.output
+        nova_descriptor_file = self.app.pargs.file
         include_docker = self.app.pargs.include_docker
         if self.app.pargs.environment:
             profile = self.app.pargs.profile
@@ -64,6 +68,7 @@ class NovaStacksController(CementBaseController):
                 environment_name=self.app.pargs.environment[0],
                 manager_provider=ManagerProvider(),
                 cf_template_out=cf_template_out,
+                nova_descriptor_file=nova_descriptor_file,
                 include_docker=include_docker
             ).update()
         else:
