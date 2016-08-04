@@ -35,6 +35,8 @@ class NovaSetupController(CementBaseController):
 
         # This is a workaround so our tests don't see this as actual Nova Python source...
         os.rename(
-            os.path.join(instance_scripts_path, 'configure-cloudwatch-logs-agent.py.txt'),
-            os.path.join(instance_scripts_path, 'configure-cloudwatch-logs-agent.py')
+            os.path.join(nova_install_dir, 'configure-cloudwatch-logs-agent.py.txt'),
+            os.path.join(nova_install_dir, 'configure-cloudwatch-logs-agent.py')
         )
+
+        print("NOVA instance scripts installed!")
