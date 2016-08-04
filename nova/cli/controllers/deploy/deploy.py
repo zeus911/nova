@@ -23,7 +23,8 @@ class NovaDeploymentsController(CementBaseController):
             (['-n', '--no-deployment'], dict(
                 help='Upload to S3 only, do not trigger code-deploy',
                 dest='no_deploy',
-                action='store_false'
+                action='store_false',
+                default=True
             )),
             (['deploy_args'], dict(action='store', nargs='*'))
         ]
