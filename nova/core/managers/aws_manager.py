@@ -6,7 +6,6 @@ from __future__ import unicode_literals
 import os
 import sys
 import git
-import time
 import boto3
 import hashlib
 import tempfile
@@ -18,17 +17,13 @@ from nova.core import NovaError
 from nova.core import query_yes_no
 from nova.core.utils import tarfile_progress as tarfile
 from nova.core.utils.s3_progress import ProgressPercentage
-from nova.core.utils.cfn_waiter import CloudformationWaiter
 
 
 class AwsManager(object):
 
-    def __init__(self, profile, region, session=None):
+    def __init__(self, profile, region):
         self.profile = profile
         self.region = region
-        # if session:
-        #     self._session = session
-        # else:
         self._session = boto3.session.Session(profile_name=profile, region_name=region)
         self._account_alias = None
         self._s3_client = None
@@ -132,10 +127,10 @@ class AwsManager(object):
 
         print(colored(stack_id, color='green'))
 
-        waiter = CloudformationWaiter(self.cloudformation)
+        waiter = self.cloudformation_client.get_waiter('stack_create_complete')
         print(colored('Cloudformation stack creation in progress. Please check the AWS console!', color='green'))
         print(colored('Waiting on stack creation...', color='magenta'))
-        waiter.waiter.wait(StackName=service_name)
+        waiter.wait(StackName=service_name)
         print(colored('Stack creation finished!', color='green'))
         return stack_id
 
@@ -151,11 +146,12 @@ class AwsManager(object):
                 ChangeSetName=changeset_id
             )
             cs_id = cs_response['Id']
+
+            waiter = self.cloudformation_client.get_waiter('change_set_create_complete')
+            print(colored('Waiting on change set creation...', 'magenta'))
+            waiter.wait(StackName=cf_stack.stack_name, ChangeSetName=cs_id)
+
             changes = self.cloudformation_client.describe_change_set(StackName=cf_stack.stack_name, ChangeSetName=cs_id)
-
-            # delay for 2 seconds while waiting for changeset to create
-            time.sleep(2)
-
             print(colored("The following stack update changes to be applied:", 'cyan'))
             print(colored("================================================================================", 'cyan'))
             print(colored(changes, 'yellow'))
@@ -167,10 +163,10 @@ class AwsManager(object):
                     StackName=cf_stack.stack_name
                 )
 
-                waiter = CloudformationWaiter(self.cloudformation)
+                waiter = self.cloudformation_client.get_waiter('stack_update_complete')
                 print(colored('Cloudformation stack update in progress. Please check the AWS console!', color='green'))
                 print(colored('Waiting on stack update...', color='magenta'))
-                waiter.waiter.wait(StackName=service_name)
+                waiter.wait(StackName=service_name)
                 print(colored('Stack update finished!', color='green'))
             else:
                 self.cloudformation_client.delete_change_set(StackName=cf_stack.stack_name, ChangeSetName=cs_id)
@@ -266,7 +262,7 @@ class AwsManager(object):
     def create_and_upload_stack_template(self, s3_bucket, service, environment):
         bucket = self.create_bucket(s3_bucket, 'Common Nova service templates bucket does not exist, creating...')
 
-        for s, template in environment.get_stack_templates_used(service, s3_bucket).items():
+        for s, template in environment.get_stack_templates_used(service).items():
             if 's3_key' in template:
                 template_file = template['filename']
                 template_s3_key = template['s3_key']

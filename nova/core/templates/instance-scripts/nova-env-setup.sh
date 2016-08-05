@@ -23,7 +23,6 @@ pip install -U gilt-nova
 # Fix unknown host issue
 echo "$(curl http://169.254.169.254/latest/meta-data/local-ipv4) $(curl http://169.254.169.254/latest/meta-data/local-hostname|cut -d . -f1) $(curl http://169.254.169.254/latest/meta-data/local-hostname|cut -d . -f1).ec2.internal" >> /etc/hosts
 
-
 echo "Clearing old logs..."
 
 find . -type f -name 'application.lo*' -exec sh -c '

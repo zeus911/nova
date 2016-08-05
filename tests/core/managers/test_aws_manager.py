@@ -74,16 +74,14 @@ class NovaAwsManagerTestCase(NovaTestCase):
         mock_session.return_value.client.return_value.head_object.assert_called_with(Bucket='some-test-bucket', Key='key')
         self.assertEqual(response, 'response')
 
-    @mock.patch('nova.core.managers.aws_manager.CloudformationWaiter')
-    def test_create_stack(self, mock_waiter, mock_session):
+    def test_create_stack(self, mock_session):
         aws_manager = AwsManager('test-profile', 'us-east-1')
         mock_session.return_value.resource.return_value.create_stack.return_value = '123456'
         stack_id = aws_manager.create_stack('my-service', 'template')
         self.assertEqual(stack_id, '123456')
 
     @mock.patch('nova.core.managers.aws_manager.query_yes_no')
-    @mock.patch('nova.core.managers.aws_manager.CloudformationWaiter')
-    def test_create_stack(self, mock_waiter, mock_user_query, mock_session):
+    def test_create_stack(self, mock_user_query, mock_session):
         aws_manager = AwsManager('test-profile', 'us-east-1')
 
         mock_user_query.return_value = 'y'

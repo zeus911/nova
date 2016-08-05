@@ -103,7 +103,7 @@ class Stack(object):
         cft.resources.add(Resource(deployment_group_name, 'AWS::CodeDeploy::DeploymentGroup', parameters))
         cft.outputs.add(Output(deployment_group_name, ref(deployment_group_name)))
 
-    def get_template_used(self, service, template_bucket):
+    def get_template_used(self, service):
         if self.custom_template is not None:
             return {'filename': self.custom_template, 's3_key': '%s/%s_%s' % (service.name, self.name, self.custom_template)}
         else:

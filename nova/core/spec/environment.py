@@ -45,10 +45,10 @@ class Environment(object):
         else:
             raise NovaError("Stack '%s' was not found in the configuration" % stack_name)
 
-    def get_stack_templates_used(self, service, template_bucket):
+    def get_stack_templates_used(self, service):
         templates_used = dict()
         for s in self.stacks:
-            templates_used[s.name] = s.get_template_used(service, template_bucket)
+            templates_used[s.name] = s.get_template_used(service)
         return templates_used
 
     def to_cfn_template(self, service, template_bucket, cft, aws_manager, include_docker=True):

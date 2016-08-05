@@ -6,12 +6,16 @@ from __future__ import unicode_literals
 from cement.core.controller import CementBaseController, expose
 from nova.core.exc import NovaError
 from nova.core.managers.manager_provider import ManagerProvider
+from nova.core.spec.nova_service_loader import NovaServiceLoader
 from nova.core.stack.create_stack import CreateStack
+from nova.core.stack.stack_differ import StackDiffer
 from nova.core.stack.update_stack import UpdateStack
 
 INCORRECT_CREATE_ARGS_USAGE = "You must provide an environment to create"
 
 INCORRECT_UPDATE_ARGS_USAGE = "You must provide an environment to update"
+
+INCORRECT_DIFF_ARGS_USAGE = "You must provide an environment to diff"
 
 
 class NovaStacksController(CementBaseController):
@@ -32,7 +36,7 @@ class NovaStacksController(CementBaseController):
             )),
             (['environment'], dict(action='store', nargs='*'))
         ]
-        usage = "nova stack [create|update] <environment>"
+        usage = "nova stack [create|update|diff] <environment> (<stack>)"
 
     @expose(hide=True)
     def default(self):
@@ -43,7 +47,7 @@ class NovaStacksController(CementBaseController):
         cf_template_out = self.app.pargs.output
         nova_descriptor_file = self.app.pargs.file
         include_docker = self.app.pargs.include_docker
-        if self.app.pargs.environment:
+        if len(self.app.pargs.environment) == 1:
             profile = self.app.pargs.profile
             CreateStack(
                 aws_profile=profile,
@@ -61,7 +65,7 @@ class NovaStacksController(CementBaseController):
         cf_template_out = self.app.pargs.output
         nova_descriptor_file = self.app.pargs.file
         include_docker = self.app.pargs.include_docker
-        if self.app.pargs.environment:
+        if len(self.app.pargs.environment) == 1:
             profile = self.app.pargs.profile
             UpdateStack(
                 aws_profile=profile,
@@ -73,3 +77,24 @@ class NovaStacksController(CementBaseController):
             ).update()
         else:
             raise NovaError(INCORRECT_UPDATE_ARGS_USAGE)
+
+    @expose(help='Diff NOVA service stack update')
+    def diff(self):
+        nova_descriptor_file = self.app.pargs.file
+        if len(self.app.pargs.environment) == 1:
+            aws_manager = ManagerProvider()
+            service_manager = NovaServiceLoader(self.app.pargs.environment[0], nova_descriptor_file)
+            profile = self.app.pargs.profile or service_manager.environment.aws_profile
+            region = service_manager.environment.aws_region
+            s3_bucket = 'nova-deployment-templates-%s' % aws_manager.aws_manager(profile, region).account_alias
+
+            differ = StackDiffer(profile, region, aws_manager)
+
+            differ.diff(
+                service=service_manager.service,
+                environment=service_manager.environment,
+                s3_bucket=s3_bucket
+            )
+        else:
+            raise NovaError(INCORRECT_DIFF_ARGS_USAGE)
+
