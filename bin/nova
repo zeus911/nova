@@ -1,0 +1,81 @@
+#!/bin/sh
+#
+# Runs nova
+#
+
+NOVA_DOCKER_IMAGE=${NOVA_DOCKER_IMAGE-nova}
+
+if [ "$VERBOSE" != "" ] ; then
+  set -x
+fi
+
+if [ -t 0 ] && [ -t 1 ] ; then
+  CONNECTED_TO_TERMINAL=true
+else
+  CONNECTED_TO_TERMINAL=false
+fi
+
+if $CONNECTED_TO_TERMINAL ; then
+  DOCKER_TERMINAL=" -t"
+else
+  DOCKER_TERMINAL=
+fi
+
+DOCKER_INTERACTIVE="--rm -i$DOCKER_TERMINAL"
+
+HOST_OS_HOME=${HOST_OS_HOME-$HOME}
+HOST_OS_PWD=${HOST_OS_PWD-$(pwd -P)}
+DOCKER_ENVIRONMENT="-e VERBOSE=$VERBOSE -e DOCKER_HOST=$DOCKER_HOST -e HOST_OS_HOME=$HOST_OS_HOME -e HOST_OS_PWD=$HOST_OS_PWD"
+
+if [[ "$HOME" =~ "/home/" ]] ;
+  then DOCKER_VOLUMES="-v /home:/home -v `pwd`:`pwd`"
+  else DOCKER_VOLUMES="-v /Users:/Users"
+fi;
+
+AWS_CLI_ENV_ARGS=''
+[ -z "$AWS_ACCESS_KEY_ID" ]      || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"; }
+[ -z "$AWS_SECRET_ACCESS_KEY" ]  || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"; }
+[ -z "$AWS_SESSION_TOKEN" ]      || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}"; }
+[ -z "$AWS_DEFAULT_REGION" ]     || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}"; }
+[ -z "$AWS_PROFILE" ]            || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_PROFILE=${AWS_PROFILE}"; }
+[ -z "$AWS_CONFIG_FILE" ]        || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_CONFIG_FILE=${AWS_CONFIG_FILE}"; }
+[ -z "$AWS_DELEGATION_TOKEN" ]   || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_DELEGATION_TOKEN=${AWS_DELEGATION_TOKEN}"; }
+
+# docker-machine systems will link the docker daemon to the mst container via tcp
+if [ $DOCKER_HOST ] ;
+  then HOST_DOCKER_LINKAGE="-e DOCKER_HOST=$DOCKER_HOST $HOST_DOCKER_LINKAGE"
+fi;
+
+if [ $DOCKER_TLS_VERIFY ] ;
+  then HOST_DOCKER_LINKAGE="-e DOCKER_TLS_VERIFY=$DOCKER_TLS_VERIFY $HOST_DOCKER_LINKAGE"
+fi;
+
+if [ $DOCKER_CERT_PATH ] ;
+  then HOST_DOCKER_LINKAGE="-e DOCKER_CERT_PATH=$DOCKER_CERT_PATH $HOST_DOCKER_LINKAGE"
+fi;
+
+if [[ -e "/var/run/docker.sock" ]]
+  then HOST_DOCKER_LINKAGE="-v /var/run/docker.sock:/var/run/docker.sock $HOST_DOCKER_LINKAGE"
+fi;
+
+# Requires a permanent home on Dockerhub before we can use this
+#docker_update() {
+#  exec docker pull "$@"
+#}
+
+docker_run() {
+  exec docker run ${AWS_CLI_ENV_ARGS} $DOCKER_INTERACTIVE $DOCKER_ENVIRONMENT $DOCKER_VOLUMES $DOCKER_OPTIONS "$@"
+}
+
+if [[ $# -gt 0 && "z$1" == "zupdate" ]]; then
+  echo "Rebuild by checking out https://github.com/gilt/nova and running \"make\""
+  exit 1
+else
+  docker_run \
+    -w $HOST_OS_PWD \
+    -v $HOST_OS_HOME/.aws:/root/.aws \
+    -v $HOST_OS_HOME/.docker:/root/.docker \
+    $HOST_DOCKER_LINKAGE \
+    $NOVA_DOCKER_IMAGE "$@"
+fi
+
