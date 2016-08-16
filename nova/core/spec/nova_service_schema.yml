@@ -15,6 +15,10 @@ port:
 healthcheck_url:
   type: string
   required: true
+# Whether or not to send CodeDeploy logs to CloudWatch. Defaults to true.
+code_deploy_logs:
+  type: boolean
+  required: false
 
 # Cloudwatch logs configuration
 logs:

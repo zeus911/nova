@@ -2,6 +2,7 @@ service_name: test-service
 team_name: someotherteam
 port: 9000
 healthcheck_url: /new_healthcheck
+code_deploy_logs: false
 
 environments:
   - name: test-environment

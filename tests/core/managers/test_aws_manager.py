@@ -111,7 +111,7 @@ class NovaAwsManagerTestCase(NovaTestCase):
         aws_manager = AwsManager('test-profile', 'us-east-1')
         stack = Stack('my-stack', 'prod', 'template.json', None, None, 'OneAtATime',  None, None, None, None, None, None)
         environment = Environment('my-env', 'test-profile', 'us-east-1', None, 'my-deploy-arn', 'my-deploy-bucket', None, [stack])
-        service = Service('my-service', 'my-team', 9000, '/health', None, [environment])
+        service = Service('my-service', 'my-team', 9000, '/health', None, False, [environment])
 
         mock_os_path.return_value.exists.return_value = True
         mock_git_repo.return_value.is_dirty.return_value = False

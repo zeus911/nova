@@ -15,7 +15,7 @@
         "TimeoutInMinutes": 60,
         "Parameters": {
           "ApplicationName": "test-service",
-          "LogsList": "KGxwMAou",
+          "LogsList": "KGxwMApjY29sbGVjdGlvbnMKT3JkZXJlZERpY3QKcDEKKChscDIKKGxwMwpWZmlsZQpwNAphVi92YXIvbG9nL2F3cy9jb2RlZGVwbG95LWFnZW50L2NvZGVkZXBsb3ktYWdlbnQubG9nCnA1CmFhKGxwNgpWZ3JvdXBfbmFtZQpwNwphVmNvZGVkZXBsb3ktYWdlbnQtbG9nCnA4CmFhKGxwOQpWZGF0ZXRpbWVfZm9ybWF0CnAxMAphViVZLSVtLSVkICVIOiVNOiVTCnAxMQphYXRwMTIKUnAxMwphZzEKKChscDE0CihscDE1Cmc0CmFWL3RtcC9jb2RlZGVwbG95LWFnZW50LnVwZGF0ZS5sb2cKcDE2CmFhKGxwMTcKZzcKYVZjb2RlZGVwbG95LXVwZGF0ZXItbG9nCnAxOAphYXRwMTkKUnAyMAphZzEKKChscDIxCihscDIyCmc0CmFWL29wdC9jb2RlZGVwbG95LWFnZW50L2RlcGxveW1lbnQtcm9vdC9kZXBsb3ltZW50LWxvZ3MvY29kZWRlcGxveS1hZ2VudC1kZXBsb3ltZW50cy5sb2cKcDIzCmFhKGxwMjQKZzcKYVZjb2RlZGVwbG95LWRlcGxveW1lbnRzLWxvZwpwMjUKYWF0cDI2ClJwMjcKYS4=",
           "DockerDeploymentArguments": "KGxwMAou",
           "HealthcheckUrl": "/healthcheck",
           "DockerDeploymentVolumes": "KGxwMAou",

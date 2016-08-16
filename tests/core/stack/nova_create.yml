@@ -2,6 +2,7 @@ service_name: test-service
 team_name: nova
 port: 80
 healthcheck_url: /healthcheck
+code_deploy_logs: true
 
 environments:
   - name: test-environment

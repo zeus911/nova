@@ -13,12 +13,13 @@ from nova.core.spec.service_log_mapping import ServiceLogMapping
 
 class Service(object):
 
-    def __init__(self, name, team_name, port, healthcheck_url, logs, environments):
+    def __init__(self, name, team_name, port, healthcheck_url, logs, code_deploy_logs, environments):
         self.name = name
         self.team_name = team_name
         self.port = port
         self.healthcheck_url = healthcheck_url
         self.logs = logs
+        self.code_deploy_logs = code_deploy_logs
         self.environments = environments
 
     def yaml(self):
@@ -32,6 +33,7 @@ class Service(object):
             ('port', self.port),
             ('healthcheck_url', self.healthcheck_url),
             ('logs', logs_list),
+            ('code_deploy_logs', self.code_deploy_logs),
             ('environments', [e.yaml() for e in self.environments])
         ])
         return pyaml.dump(OrderedDict((k, v) for k, v in data.items() if v is not None))
@@ -64,11 +66,16 @@ class Service(object):
         if logs_list is not None:
             logs_list = [ServiceLogMapping.load(lm) for lm in logs_list]
 
+        code_deploy_logs = True
+        if values.get("code_deploy_logs") is not None:
+            code_deploy_logs = values.get("code_deploy_logs")
+
         return Service(
             values.get("service_name"),
             values.get("team_name"),
             values.get("port"),
             values.get("healthcheck_url"),
             logs_list,
+            code_deploy_logs,
             [Environment.load(e) for e in values.get("environments")]
         )
