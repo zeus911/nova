@@ -56,7 +56,7 @@ class PyTest(TestCommand):
 
 
 setup(name='gilt-nova',
-      version='11.0.0',
+      version='11.0.1.dev0',
       description="Collection of utilities to easily deploy services to AWS.",
       long_description="Collection of utilities to easily deploy services to AWS.",
       license='MIT',
