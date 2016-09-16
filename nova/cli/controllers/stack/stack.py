@@ -24,11 +24,11 @@ class NovaStacksController(CementBaseController):
             (['-f', '--file'], dict(help='Specify the nova service descriptor file to use.')),
             (['-p', '--profile'], dict(help='Override nova.yml AWS profile')),
             (['-o', '--output'], dict(help='Specify a file to output the template to.')),
-            (['--no-docker-args'], dict(
-                help='Do not populate DockerDeployment* CF variables.',
+            (['--with-docker-args'], dict(
+                help='Populate legacy DockerDeployment* CF variables.',
                 dest='include_docker',
                 action='store_false',
-                default=True
+                default=False
             )),
             (['environment'], dict(action='store', nargs='*'))
         ]
