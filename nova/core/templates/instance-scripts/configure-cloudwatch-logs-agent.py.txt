@@ -19,7 +19,7 @@ AWSLOGS_CONFIG_TEMPLATE = textwrap.dedent("""
     {% for log_mapping in observed_log_files %}
     [{{log_mapping['file']}}]
     datetime_format = {{log_mapping['datetime_format']}}
-    multi_line_start_pattern = {{log_mapping['datetime_format']}}
+    multi_line_start_pattern = {datetime_format}
     file = {{log_mapping['file']}}
     log_group_name = {{log_mapping['group_name']}}
     log_stream_name = {{instance_id}}
