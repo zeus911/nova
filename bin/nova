@@ -1,15 +1,26 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # Runs nova
 #
 
-NOVA_DOCKER_IMAGE=${NOVA_DOCKER_IMAGE-nova}
+ACTUAL_USER=$(id -un)
+EXPECTED_USER='root'
+PROGRAM_NAME="${0##*/}"
 
-if [ "$VERBOSE" != "" ] ; then
+if [[ $ACTUAL_USER != $EXPECTED_USER ]]
+then
+    echo "ERROR: You should run '$PROGRAM_NAME' as user $EXPECTED_USER (not as $ACTUAL_USER)"
+    exit 2
+fi
+
+NOVA_DOCKER_IMAGE=${NOVA_DOCKER_IMAGE-nova}
+export PS4='[$LINENO]+'
+
+if [[ "$VERBOSE" != "" ]] ; then
   set -x
 fi
 
-if [ -t 0 ] && [ -t 1 ] ; then
+if [[ -t 0 ]] && [[ -t 1 ]] ; then
   CONNECTED_TO_TERMINAL=true
 else
   CONNECTED_TO_TERMINAL=false
@@ -28,29 +39,29 @@ HOST_OS_PWD=${HOST_OS_PWD-$(pwd -P)}
 DOCKER_ENVIRONMENT="-e VERBOSE=$VERBOSE -e DOCKER_HOST=$DOCKER_HOST -e HOST_OS_HOME=$HOST_OS_HOME -e HOST_OS_PWD=$HOST_OS_PWD"
 
 if [[ "$HOME" =~ "/home/" ]] ;
-  then DOCKER_VOLUMES="-v /home:/home -v `pwd`:`pwd`"
+  then DOCKER_VOLUMES="-v /home:/home -v $(pwd):$(pwd)"
   else DOCKER_VOLUMES="-v /Users:/Users"
 fi;
 
 AWS_CLI_ENV_ARGS=''
-[ -z "$AWS_ACCESS_KEY_ID" ]      || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"; }
-[ -z "$AWS_SECRET_ACCESS_KEY" ]  || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"; }
-[ -z "$AWS_SESSION_TOKEN" ]      || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}"; }
-[ -z "$AWS_DEFAULT_REGION" ]     || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}"; }
-[ -z "$AWS_PROFILE" ]            || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_PROFILE=${AWS_PROFILE}"; }
-[ -z "$AWS_CONFIG_FILE" ]        || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_CONFIG_FILE=${AWS_CONFIG_FILE}"; }
-[ -z "$AWS_DELEGATION_TOKEN" ]   || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_DELEGATION_TOKEN=${AWS_DELEGATION_TOKEN}"; }
+[[ -z "$AWS_ACCESS_KEY_ID" ]]      || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"; }
+[[ -z "$AWS_SECRET_ACCESS_KEY" ]]  || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"; }
+[[ -z "$AWS_SESSION_TOKEN" ]]      || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}"; }
+[[ -z "$AWS_DEFAULT_REGION" ]]     || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}"; }
+[[ -z "$AWS_PROFILE" ]]            || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_PROFILE=${AWS_PROFILE}"; }
+[[ -z "$AWS_CONFIG_FILE" ]]        || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_CONFIG_FILE=${AWS_CONFIG_FILE}"; }
+[[ -z "$AWS_DELEGATION_TOKEN" ]]   || { AWS_CLI_ENV_ARGS=" ${AWS_CLI_ENV_ARGS} -e AWS_DELEGATION_TOKEN=${AWS_DELEGATION_TOKEN}"; }
 
 # docker-machine systems will link the docker daemon to the mst container via tcp
-if [ $DOCKER_HOST ] ;
+if [[ $DOCKER_HOST ]] ;
   then HOST_DOCKER_LINKAGE="-e DOCKER_HOST=$DOCKER_HOST $HOST_DOCKER_LINKAGE"
 fi;
 
-if [ $DOCKER_TLS_VERIFY ] ;
+if [[ $DOCKER_TLS_VERIFY ]] ;
   then HOST_DOCKER_LINKAGE="-e DOCKER_TLS_VERIFY=$DOCKER_TLS_VERIFY $HOST_DOCKER_LINKAGE"
 fi;
 
-if [ $DOCKER_CERT_PATH ] ;
+if [[ $DOCKER_CERT_PATH ]] ;
   then HOST_DOCKER_LINKAGE="-e DOCKER_CERT_PATH=$DOCKER_CERT_PATH $HOST_DOCKER_LINKAGE"
 fi;
 
@@ -64,6 +75,7 @@ fi;
 #}
 
 docker_run() {
+  echo "About to run: exec docker run ${AWS_CLI_ENV_ARGS} $DOCKER_INTERACTIVE $DOCKER_ENVIRONMENT $DOCKER_VOLUMES $DOCKER_OPTIONS" "$@"
   exec docker run ${AWS_CLI_ENV_ARGS} $DOCKER_INTERACTIVE $DOCKER_ENVIRONMENT $DOCKER_VOLUMES $DOCKER_OPTIONS "$@"
 }
 
