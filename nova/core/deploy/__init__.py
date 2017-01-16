@@ -20,16 +20,20 @@ REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/documen
 
 STACK_ENV=`aws ec2 describe-tags --filters "Name=resource-id,Values=$INSTANCE_ID" "Name=key,Values=Environment" --region=$REGION --output=text | awk '{print $5}'`
 
-IFS=$'\r\n' GLOBIGNORE='*' command eval  'docker_args=($(cat /opt/nova/environments/$STACK_ENV/docker-vars.list))'
+. /opt/nova/environments/$STACK_ENV/set-env-vars.sh
+[ -z "$DOCKER_ARGS" ] && { echo "DOCKER_ARGS was not defined" >&2 ; exit 1; }
+[ -z "$DOCKER_OPTS" ] && { echo "DOCKER_OPTS was not defined" >&2 ; exit 1; }
+[ -z "$DOCKER_VARS" ] && { echo "DOCKER_VARS was not defined" >&2 ; exit 1; }
+[ -z "$DOCKER_VOLS" ] && { echo "DOCKER_VOLS was not defined" >&2 ; exit 1; }
 
-eval docker run -d \
+docker run -d \
   --name={{service_name}} \
   -p {{port}}:{{port}} \
-  $(< /opt/nova/environments/$STACK_ENV/docker-opts.list) \
-  ${docker_args[@]} \
-  $(< /opt/nova/environments/$STACK_ENV/docker-vols.list) \
+  $DOCKER_OPTS \
+  $DOCKER_VARS \
+  $DOCKER_VOLS \
   {{image}} \
-  $(< /opt/nova/environments/$STACK_ENV/docker-args.list)
+  $DOCKER_ARGS
 """
 
 VALIDATE = """

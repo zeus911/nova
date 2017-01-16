@@ -162,49 +162,41 @@ class DeployStack:
         print(colored("Generated appspec.yml", color='green'))
 
     def __render_stack_files(self, stack):
+        env_vars_script = '#!/usr/bin/env bash\n\n'
+        env_vars_script += 'set -e\n\n'
+
         deployment_options = ''
         if stack.deployment_options is not None:
             for opts in stack.deployment_options:
                 for args in opts.items():
                     deployment_options += "{0}={1} ".format(args[0], args[1])
-            deployment_options += "\n"
-        self.__render_file('env-vars/%s/docker-opts.list' % stack.stack_type, deployment_options.strip())
+        env_vars_script += 'DOCKER_OPTS="%s"\n' % deployment_options.strip()
 
         deployment_volumes = ''
         if stack.deployment_volumes is not None:
             for opts in stack.deployment_volumes:
                 for args in opts.items():
                     deployment_volumes += "-v {0}:{1} ".format(args[0], args[1])
-            deployment_volumes += "\n"
-        self.__render_file('env-vars/%s/docker-vols.list' % stack.stack_type, deployment_volumes.strip())
+        env_vars_script += 'DOCKER_VOLS="%s"\n' % deployment_volumes.strip()
 
         deployment_variables = ''
         if stack.deployment_variables is not None:
             for opts in stack.deployment_variables:
                 for args in opts.items():
-                    deployment_variables += '-e "{0}={1}"\n'.format(args[0], args[1])
-            deployment_variables += "\n"
-        self.__render_file('env-vars/%s/docker-vars.list' % stack.stack_type, deployment_variables.strip())
+                    deployment_variables += '-e "{0}={1}" '.format(args[0], args[1])
+        env_vars_script += 'DOCKER_VARS="%s"\n' % deployment_variables.strip()
 
         deployment_arguments = ''
         if stack.deployment_arguments is not None:
             for opts in stack.deployment_arguments:
                 for args in opts.items():
                     deployment_arguments += "{0}={1} ".format(args[0], args[1])
-            deployment_arguments += "\n"
-        self.__render_file('env-vars/%s/docker-args.list' % stack.stack_type, deployment_arguments.strip())
+        env_vars_script += 'DOCKER_ARGS="%s"\n' % deployment_arguments.strip()
+
+        self.__render_file('env-vars/%s/set-env-vars.sh' % stack.stack_type, env_vars_script)
 
         return [{
-            'source': 'env-vars/%s/docker-opts.list' % stack.stack_type,
-            'destination': '/opt/nova/environments/%s' % stack.stack_type
-        }, {
-            'source': 'env-vars/%s/docker-vols.list' % stack.stack_type,
-            'destination': '/opt/nova/environments/%s' % stack.stack_type
-        }, {
-            'source': 'env-vars/%s/docker-vars.list' % stack.stack_type,
-            'destination': '/opt/nova/environments/%s' % stack.stack_type
-        }, {
-            'source': 'env-vars/%s/docker-args.list' % stack.stack_type,
+            'source': 'env-vars/%s/set-env-vars.sh' % stack.stack_type,
             'destination': '/opt/nova/environments/%s' % stack.stack_type
         }]
 
