@@ -2,10 +2,8 @@
 **Stash Commands**
 ==================
 
-Nova Stash sub-commands provide functionality for storing & retrieving confidential properties using AWS's KMS encryption/decryption.
-
-You can stash sensitive properties using KMS & S3 using the stash task: The 'bucket' parameter has a default value
-of novastash_<AWS Account Alias>. Nova stash expects a key named novastash in the aws account by default unless told otherwise.
+Nova Stash sub-commands provide functionality for storing & retrieving confidential properties in S3 using AWS's KMS encryption/decryption.
+Note: These commands do **not** use the `standard AWS API <http://docs.aws.amazon.com/AmazonS3/latest/dev/UsingClientSideEncryption.html>`_ for this, so data stashed with Nova can not be retrieved using the standard AWS API and vice versa.
 
 ::
 
@@ -13,25 +11,19 @@ of novastash_<AWS Account Alias>. Nova stash expects a key named novastash in th
 
 ::
 
-    $ nova get '<service-name>.<property key>' --bucket <S3 bucket to use>
+    $ nova stash get '<service-name>.<property key>' --bucket <S3 bucket to use>
+
+The 'bucket' parameter has a default value of novastash_<AWS Account Alias>. Nova stash expects a key named novastash in the aws account by default unless told otherwise.
 
 **Example Usage**
 -----------------
 
-Example shows how to stash a database password and retrieve as a Docker environment variable at deployment time.
-
-**NOTE** This example assumes you have the NOVA Tool installed on the server you wish to deploy to.
+A minimal example of how to stash and retrieve a database password using the default values for optional command parameters.
 
 ::
 
-    $ nova stash put 'test-dashboard.db.password' 'mysupersecretpassword' --bucket novastash_data
-
-
-``nova.yml``
+    $ nova stash put 'test-dashboard.db.password' 'mysupersecretpassword'
 
 ::
 
-    ...
-    deployment_variables:
-        - DB_PASSWORD: "$(/path/to/nova stash get --bucket novastash_data 'test-service.db.password')"
-    ...
+    $ nova stash get 'test-dashboard.db.password'
