@@ -23,7 +23,7 @@ When the Auto Scaling Group (ASG) is created for the first time it defaults to u
 to verify if the nodes in the ASG are healthy. If a node is not healthy it is pulled down and a new node is started. This
 interferes with being able to deploy as the stack constantly cycling. What you have to do is manually change the **Health Check Type**
 setting of the ASG to EC2 instead of ELB via the AWS Management Console until you get a good deploy on the nodes (where the application
-Health Check URL is returning a 200). Even if you don't plan to depoly your service immediately, it is still a good idea to switch the healthcheck. If you don't switch the healthcheck, AWS will continue to pull down your nodes and you can run out of CPU credits to launch certain instance types. This setting is in the following location in the AWS console.
+Health Check URL is returning a 200). Even if you don't plan to deploy your service immediately, it is still a good idea to switch the healthcheck. If you don't switch the healthcheck, AWS will continue to pull down your nodes and you can run out of CPU credits to launch certain instance types. This setting is in the following location in the AWS console.
 
    **EC2** -> **Autoscaling Groups**
 
