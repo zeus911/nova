@@ -133,4 +133,5 @@ class FileWrapper(object):
     def __del__(self):
         self._updateprogress(self._size - self._totalread)
 
+
 open = TarFile.open

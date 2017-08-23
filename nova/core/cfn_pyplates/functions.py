@@ -173,6 +173,7 @@ def join(sep, *args):
 
     return {'Fn::Join': [sep, list(args)]}
 
+
 join._errmsg_needinput = 'Unable to join on one or less things!'
 
 
@@ -216,6 +217,7 @@ def select(index, *args):
         raise IntrinsicFuncInputError(select._errmsg_index)
 
     return {'Fn::Select': [index, list(args)]}
+
 
 select._errmsg_int = 'Index must be a number!'
 select._errmsg_empty = 'Unable to select from an empty list!'
@@ -295,6 +297,8 @@ def c_and(*conditions):
     """
     _validate_logical_condition_counts(c_and, conditions)
     return {'Fn::And': list(conditions)}
+
+
 c_and._errmsg_min = "Minimum umber of conditions for 'c_and' condition is 2"
 c_and._errmsg_max = "Maximum umber of conditions for 'c_and' condition is 10"
 
@@ -315,6 +319,8 @@ def c_or(*conditions):
     """
     _validate_logical_condition_counts(c_or, conditions)
     return {'Fn::Or': list(conditions)}
+
+
 c_or._errmsg_min = "Minimum umber of conditions for 'c_or' condition is 2"
 c_or._errmsg_max = "Maximum umber of conditions for 'c_or' condition is 10"
 
