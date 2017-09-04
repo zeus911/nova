@@ -26,7 +26,7 @@ class TarFile(tarfile.TarFile):
 
     def __init__(self, name=None, mode="r", fileobj=None, format=None,
                  tarinfo=None, dereference=None, ignore_zeros=None,
-                 encoding=None, errors=None, pax_headers=None, debug=None, errorlevel=None):
+                 encoding=None, errors='strict', pax_headers=None, debug=None, errorlevel=None):
         self.__progresscallback = None
 
         tarfile.TarFile.__init__(self, name, mode, fileobj, format,
@@ -38,7 +38,7 @@ class TarFile(tarfile.TarFile):
             progress(0)
             self.__progresscallback = progress
 
-        return tarfile.TarFile.add(self, name, arcname, recursive, exclude, filter)
+        return tarfile.TarFile.add(self, name, arcname=arcname, recursive=recursive, exclude=exclude, filter=filter)
 
     def addfile(self, tarinfo, fileobj=None, progress=None):
         if progress is not None:
