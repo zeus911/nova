@@ -1,6 +1,7 @@
 from setuptools.command.test import test as TestCommand
 from setuptools import setup, find_packages
 from pip.req import parse_requirements
+
 import os
 import sys
 import glob
@@ -10,8 +11,9 @@ conf = []
 for name in glob.glob('config/plugins.d/*.conf'):
     conf.insert(1, name)
 
-if not os.path.exists('~/.nova/'):
-    os.makedirs('~/.nova/')
+userdir_conf = os.path.expanduser("~/.nova")
+if not os.path.exists(userdir_conf):
+    os.makedirs(userdir_conf)
 
 # parse_requirements() returns generator of pip.req.InstallRequirement objects
 install_reqs = parse_requirements('requirements.txt', session=False)
@@ -97,7 +99,7 @@ setup(name='gilt-nova',
               'junitxml': ('setup.py', 'junit.xml')
           }
       },
-      data_files=[('~/.nova', ['config/nova.conf']), ('~/.nova/plugins.d', conf)],
+      data_files=[(userdir_conf, ['config/nova.conf']), (os.path.expanduser('~/.nova/plugins.d'), conf)],
       setup_requires=['flake8'],
       entry_points="""
           [console_scripts]
