@@ -21,10 +21,11 @@ REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/documen
 STACK_ENV=`aws ec2 describe-tags --filters "Name=resource-id,Values=$INSTANCE_ID" "Name=key,Values=Environment" --region=$REGION --output=text | awk '{print $5}'`
 
 . /opt/nova/environments/$STACK_ENV/set-env-vars.sh
-[ -z "$DOCKER_ARGS" ] && { echo "DOCKER_ARGS was not defined" >&2 ; exit 1; }
-[ -z "$DOCKER_OPTS" ] && { echo "DOCKER_OPTS was not defined" >&2 ; exit 1; }
-[ -z "$DOCKER_VARS" ] && { echo "DOCKER_VARS was not defined" >&2 ; exit 1; }
-[ -z "$DOCKER_VOLS" ] && { echo "DOCKER_VOLS was not defined" >&2 ; exit 1; }
+
+[ -z "$DOCKER_ARGS" ] && { echo "Warning: DOCKER_ARGS was unset." >&1; }
+[ -z "$DOCKER_OPTS" ] && { echo "Warning: DOCKER_OPTS was unset." >&1; }
+[ -z "$DOCKER_VARS" ] && { echo "Warning: DOCKER_VARS was unset." >&1; }
+[ -z "$DOCKER_VOLS" ] && { echo "Warning: DOCKER_VOLS was unset." >&1; }
 
 docker run -d \
   --name={{service_name}} \
