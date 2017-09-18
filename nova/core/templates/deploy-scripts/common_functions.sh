@@ -285,7 +285,7 @@ autoscaling_exit_standby() {
         msg "Resuming AZRebalance process for ASG ${asg_name}"
         $AWS_CLI autoscaling resume-processes \
             --auto-scaling-group-name "${asg_name}" \
-            --scaling-processes AZRebalance ScheduledActions AlarmNotification
+            --scaling-processes AZRebalance
         if [ $? != 0 ]; then
             msg "Failed to resume the AZRebalance process for ASG ${asg_name}. This may cause issues!"
             return 1
