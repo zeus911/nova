@@ -8,7 +8,7 @@ Nova Stack sub-commands provide functionality for service infrastructure.
 
     $ nova stack create|update <environment name>
 
-**Note**: You must provide the name of the environment to create.
+**Note**: You must provide the name of the environment to create, e.g. `common`.
 
 This task will find any shared templates used by the environment's stacks and ensure they've been uploaded to the
 S3 bucket for the AWS account you're using (i.e. "s3://nova-deployment-templates-").
@@ -45,4 +45,4 @@ Once you have successfully deployed a version of your service to the new stack, 
 
 ::
 
-    nova stack update
+    nova stack update <environment name>
