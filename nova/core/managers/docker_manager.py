@@ -32,7 +32,7 @@ class DockerManager(object):
         return self.docker_client.images()
 
     def find_image(self, looking_for_tag):
-        matching_images = [d for d in self.docker_client.images() if d['RepoTags'] is not None and d['RepoTags'][0].endswith(looking_for_tag)]
+        matching_images = [d for d in self.docker_client.images() if d['RepoTags'] is not None and looking_for_tag in d['RepoTags']]
         if not len(matching_images) == 1:
             raise NovaError("Could not find a docker image with a tag for: '%s'" % looking_for_tag)
         else:
@@ -40,9 +40,9 @@ class DockerManager(object):
 
     def save_docker_image_with_tag(self, looking_for_tag, out_file):
         docker_image = self.find_image(looking_for_tag)
-        print(colored("Found docker image '%s'." % docker_image.get("RepoTags")[0], color='green'))
+        print(colored("Found docker image '%s'." % looking_for_tag, color='green'))
         print(colored("Exporting docker image to include in bundle...", color='cyan'))
-        save_cmd = ['docker', 'save', '-o', out_file, docker_image.get("RepoTags")[0]]
+        save_cmd = ['docker', 'save', '-o', out_file, looking_for_tag]
         p = subprocess.Popen(save_cmd, stdout=subprocess.PIPE)
         while p.poll() is None:
             print(colored(p.stdout.readline(), color='magenta'))
